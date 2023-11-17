@@ -1,0 +1,48 @@
+Extensions:
+simple react snipets
+Prettier
+Live Server
+Live Sass Compiler
+ES7+ React/Redux/React-Native snippets
+Black Box
+
+//React
+
+npx create-react-app projectname
+npm start
+npm i axios react-router-dom
+npm install react-bootsrap bootstrap
+npm i bootstrap-icons
+
+Grid-BreakPoints
+
+xs:0, <576px,
+sm:567 >576px,
+md:768 =>768px,
+lg:992px =>992px,
+xl:1200px =>1200px,
+xxl:1400px =>1400px
+
+//nodejs
+node -v
+node app.js
+npm init -y
+npm i pg express nodemon body-parser cors
+
+package.json
+scripts:
+{
+"start":"nodemon file.js" (automatic refreser file name)
+}
+
+{
+main ku kela
+"type":"module",
+}
+
+Get-Read Only
+Put-Create 
+Delete-remove 
+post-update
+
+
