@@ -1,0 +1,254 @@
+///App.js//
+
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./Home";
+import Create from "./Create";
+import Read from "./Read";
+import Update from "./Update";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/Create" element={<Create />} />
+        <Route path="/Read/:id" element={<Read />} />
+        <Route path="/edit/:id" element={<Update />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+
+////Home.js///
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Link } from "react-router-dom";
+
+const Home = () => {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    axios
+      .get("http://localhost:8081/")
+      .then((res) => setData(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+  const handleDelete = (id) => {
+    axios
+      .delete("http://localhost:8081/delete/" + id)
+      .then((res) => {
+        window.location.reload();
+      })
+      .catch((err) => console.log(err));
+  };
+
+  return (
+    <div className="d-flex vh-100 justify-content-center align-items-center">
+      <div className="p-3  bg-white rounded ">
+        <h2>Teacher List</h2>
+        <div className="d-flex justify-content-end">
+          <Link to="/create" className="btn btn-success bg-success">
+            Create +
+          </Link>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>NAME</th>
+              <th>Email</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((teacher, index) => (
+              <tr key={index}>
+                <td>{teacher.id}</td>
+                <td>{teacher.name}</td>
+                <td>{teacher.email}</td>
+                <td>
+                  <Link
+                    to={`/Read/${teacher.id}`}
+                    className="btn btn-sm btn-info"
+                  >
+                    Read
+                  </Link>
+                  <Link
+                    to={`/edit/${teacher.id}`}
+                    className="btn btn-sm btn-primary mx-2"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(teacher.id)}
+                    className="btn btn-sm btn-danger"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
+
+
+
+////Create.js///
+
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const Create = () => {
+  const [values, setValues] = useState({
+    id: "",
+    name: "",
+    email: "",
+  });
+  const navigate = useNavigate();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios
+      .post("http://localhost:8081/Create", values)
+      .then((res) => {
+        console.log(res);
+        navigate("/");
+      })
+      .catch((err) => console.log(err));
+  };
+  return (
+    <div className="d-flex vh-100 bg-primary justify-content-center alighn-items-center">
+      <div className="w-50 bg-white rounded p-3">
+        <form onSubmit={handleSubmit}>
+          <h2>Add Teacher</h2>
+          <div className="mb-2">
+            <label htmlFor="ID">Id</label>
+            <input
+              type="text"
+              id="id"
+              placeholder="Enter Your Id"
+              className="form-control"
+              onChange={(e) => setValues({ ...values, id: e.target.value })}
+            />
+          </div>
+          <div className="mb-2">
+            <label htmlFor="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              placeholder="Enter Your Name"
+              className="form-control"
+              onChange={(e) => setValues({ ...values, name: e.target.value })}
+            />
+          </div>
+          <div className="mb-2">
+            <label htmlFor="email">Email</label>
+            <input
+              type="text"
+              id="email"
+              placeholder="Enter Your Email"
+              className="form-control"
+              onChange={(e) => setValues({ ...values, email: e.target.value })}
+            />
+          </div>
+          <button type="Submit" className="btn   btn-success">
+            Submit
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Create;
+
+
+/////Read.js////
+
+
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+
+function Read() {
+  const { id } = useParams();
+  const [teacher, setTeacher] = useState([]);
+  useEffect(() => {
+    axios
+      .get("http://localhost:8081/Read/" + id)
+      .then((res) => {
+        console.log(res);
+        setTeacher(res.data[0]);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  return (
+    <div className="d-flex vh-100 bg-primary justify-content-center align-items-center">
+      <div className="w-50 bg-white rounded p-3">
+        <div className="p-2">
+          <h2>Teacher Detail</h2>
+          <h2>{teacher.id}</h2>
+          <h2>{teacher.name}</h2>
+          <h2>{teacher.email}</h2>
+        </div>
+        <Link to="/" className="btn btn-primary me-2">
+          Back
+        </Link>
+        <Link to={`/edit/${teacher.id}`} className="btn btn-info">
+          Edit
+        </Link>
+      </div>
+    </div>
+  );
+}
+export default Read;
+
+
+//////Update.js////
+
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+
+function Read() {
+  const { id } = useParams();
+  const [teacher, setTeacher] = useState([]);
+  useEffect(() => {
+    axios
+      .get("http://localhost:8081/Read/" + id)
+      .then((res) => {
+        console.log(res);
+        setTeacher(res.data[0]);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  return (
+    <div className="d-flex vh-100 bg-primary justify-content-center align-items-center">
+      <div className="w-50 bg-white rounded p-3">
+        <div className="p-2">
+          <h2>Teacher Detail</h2>
+          <h2>{teacher.id}</h2>
+          <h2>{teacher.name}</h2>
+          <h2>{teacher.email}</h2>
+        </div>
+        <Link to="/" className="btn btn-primary me-2">
+          Back
+        </Link>
+        <Link to={`/edit/${teacher.id}`} className="btn btn-info">
+          Edit
+        </Link>
+      </div>
+    </div>
+  );
+}
+export default Read;

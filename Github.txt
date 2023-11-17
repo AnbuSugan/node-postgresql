@@ -1,0 +1,16 @@
+git init
+git status
+git add .
+git status
+git commit -m 'any msg'
+git remote add origin 'link name'
+git branch
+git push origin master
+git branch -m 'main'(change the branch)
+git checkout branch name(change the branch)
+git push origin main
+
+currently how many branch there 
+
+git branch -a
+

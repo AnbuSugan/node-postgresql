@@ -1,0 +1,107 @@
+1.create schema databasename
+
+2.create database databasename
+
+3.create table teacher(
+name varchar(100),
+age int,
+salary int,
+department varchar(100)
+)
+
+4.alter table teacher addcolumn degree varchar(100)
+
+5.alter table teacher change department dept varchar(100)
+
+6.alter table teacher change age age varchar(100)
+
+7.drop table teacher
+
+8.select * from teacher
+
+9.insert into student values("john",23,"cse")
+
+//update panrathuku munnadi indha command use pannikanum
+set SQL-SAFE-UPDATES=0;
+
+10.update student set age=23
+
+11.update student set department="computer" where department="cse"
+
+12.update student set age=40 where age=23
+
+13.update student set age=50 where name=suresh
+
+14.delete from student
+
+15.delete from student where department="computer"
+
+16.truncate table teacher
+
+17.delete from customer where mobilenumber=null
+
+18.sum()
+
+select sum(student-mark) as totalmarks from student
+
+19.max()
+select max(student-mark) from student
+
+20.min()
+select min(student-mark) from student 
+
+21.avg()
+select avg(student-mark) from student
+
+21.count()
+select count(student-name) from student
+select count(student-name)from student where department='cse'
+
+select*from student where department="cse"
+
+22.order by
+
+select student-name,mark from student order by mark desc (or) asc
+
+23.Group by 
+
+select avg(mark) from student group by department 
+
+
+select avg(mark),department from student group by department 
+
+select count(student-name),department from student group by department order by count (student-name) desc
+
+
+24.insert into Employee(EmployeeId,Firstname,Lastname,Department,Salary)values(1,'john','doe','hr',55000);
+
+25.select*from employee order by lastname asc
+
+26.select * from employee where department="IT" order by salary desc
+
+27.count
+
+select count(*) from  employee where department = 'IT'
+
+select count(*) department from employee group by department
+
+//Average count in all department
+
+28.select salary,department from employee
+
+29.select avg(salary),department from employee group by department order by department asc
+
+30.select avg(salary),department from employee group by department order by avg(salary) desc
+
+31.select avg(salary),department from employee group by department order by avg(salary) desc limit 2
+
+//Having Clause
+
+32.select avg(salary),department from employee group by department having avg(salary)<60000;
+
+
+
+
+
+
+

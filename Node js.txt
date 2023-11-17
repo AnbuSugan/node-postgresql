@@ -1,0 +1,73 @@
+https://www.kindsonthegenius.com/build-a-rest-api-with-node-js-and-postgresql-get-post-putdelete-step-by-step/
+
+
+npm install pg express body-parser --save
+
+create File for connection.js
+1.connection code for Nodejs and Postgresql
+
+const { Client } = require("pg");
+
+const client = new Client({
+  host: "localhost",
+  user: "postgres",
+  port: 5432,
+  password: "anbu@2023",
+  database: "yup",
+});
+
+module.exports = client;
+
+2.create another file 
+
+const client = require("./connection.js");
+const express = require("express");
+const app = express();
+const cors = require("cors");
+
+app.use(cors());   //handle front end request
+app.use(express.json());  //handle frontend data converted in to string to store datasbase
+
+app.get("/", (req, res) => {
+  return res.send({ message: "node app is running" });
+});
+client.connect();
+app.get;
+
+app.post("/createUser", (req, res) => {
+  const yups = req.body;
+  let insertQuery = `insert into yups(date,campaignTitle,specialElements,additionalSpotTextarea,firstName,lastName,phoneNumber,emailValid,verification,chooseMedia,chooseLength,voiceTalent,finalApproval)
+                       values( '${yups.date}', '${yups.campaignTitle}','${yups.specialElements}','${yups.additionalSpotTextarea}','${yups.firstName}','${yups.lastName}','${yups.phoneNumber}','${yups.emailValid}','${yups.verification}','${yups.chooseMedia}','${yups.chooseLength}','${yups.voiceTalent}','${yups.finalApproval}')`;
+
+  client.query(insertQuery, (err, result) => {
+    if (!err) {
+      res.send("Insertion was successful");
+    } else {
+      console.log(err.message);
+      res.status(500).send("Internal Server Error");
+    }
+  });
+  client.end;
+});
+
+app.listen(3300, () => {
+  console.log("Sever is now listening at port 3300");
+});
+
+3.Front End Http Request 
+
+  const formik = useFormik({
+    validationSchema: schema,
+    onSubmit: async (values) => {
+      try {
+        const response = await axios.post(
+          "http://localhost:3300/createUser",
+          values
+        );
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+
