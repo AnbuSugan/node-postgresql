@@ -11,7 +11,7 @@ Black Box
 npx create-react-app projectname
 npm start
 npm i axios react-router-dom
-npm install react-bootsrap bootstrap
+npm install react-bootstrap bootstrap
 npm i bootstrap-icons
 
 Grid-BreakPoints
