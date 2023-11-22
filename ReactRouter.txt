@@ -1,0 +1,108 @@
+Routing
+import "./App.css";
+import About from "./components/About";
+import Home from "./components/Home";
+import Pricing from "./components/Pricing";
+import Services from "./components/Services";
+import Contact from "./components/Contact";
+import "./styles/Home.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Header from "./components/Header";
+import Get from "./components/Get";
+import "./styles/Header.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
+
+function App() {
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/Home" element={<Home />} />
+          <Route path="/About" element={<About />} />
+          <Route path="/Services" element={<Services />} />
+          <Route path="/Pricing" element={<Pricing />} />
+          <Route path="/Contact" element={<Contact />} />
+          <Route path="/Get" element={<Get />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+  );
+}
+
+export default App;
+
+Header.js
+
+ <div className="bg sticky-top">
+      <Container className="fluid">
+        {/* Logo */}
+
+        <Row>
+          <Col>
+            <div className="logo text-light ">
+              <h1 className="text-start mt-3 fs-3">Logis</h1>
+            </div>
+          </Col>
+
+          <Col>
+            {/* <Navbar expand="lg" className="bg-body-tertiary"> */}
+            <Navbar expand="lg">
+              <Navbar.Toggle aria-controls="basic-navbar-nav" />
+              <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="me-auto ">
+                  <Nav.Link href="/Home" className="text-light">
+                    Home
+                  </Nav.Link>
+                  <Nav.Link href="/About" className="text-light">
+                    About
+                  </Nav.Link>
+                  <Nav.Link href="/Services" className="text-light">
+                    Services
+                  </Nav.Link>
+                  <Nav.Link href="/Pricing" className="text-light">
+                    Pricing
+                  </Nav.Link>
+
+                  <NavDropdown title="Dropdown" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="#action/3.1">
+                      Action
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="#action/3.2">
+                      Another action
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="#action/3.3">
+                      Something
+                    </NavDropdown.Item>
+                    <NavDropdown.Divider />
+                    <NavDropdown
+                      title="Submenu"
+                      id="basic-nav-dropdown-sub"
+                      className="ms-5"
+                    >
+                      <NavDropdown.Item href="#action/3.4.1">
+                        Submenu item 1
+                      </NavDropdown.Item>
+                      <NavDropdown.Item href="#action/3.4.2">
+                        Submenu item 2
+                      </NavDropdown.Item>
+                      <NavDropdown.Item href="#action/3.4.3">
+                        Submenu item 3
+                      </NavDropdown.Item>
+                    </NavDropdown>
+                  </NavDropdown>
+
+                  <Nav.Link href="/Contact" className="text-light">
+                    Contact
+                  </Nav.Link>
+                  <Button href="/Get" className="text-white">
+                    Get a Quote
+                  </Button>
+                </Nav>
+              </Navbar.Collapse>
+            </Navbar>
+          </Col>
+        </Row>
+      </Container>
+    </div>
