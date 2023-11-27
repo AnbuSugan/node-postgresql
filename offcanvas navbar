@@ -1,0 +1,165 @@
+import React, { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import {
+  Container,
+  Row,
+  Col,
+  Nav,
+  Button,
+  Navbar,
+  NavDropdown,
+  Offcanvas,
+} from "react-bootstrap";
+import Accordion from "react-bootstrap/Accordion";
+
+const Header = () => {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  return (
+    <div className="bg sticky-top">
+      <Container>
+        {/* Logo */}
+        <Row>
+          <Col>
+            <div className="logo text-light">
+              <h1 className="text-start mt-3 fs-3">Logis</h1>
+            </div>
+          </Col>
+
+          <Col className="navbar">
+            <Navbar expand="xl">
+              <button
+                className="navbar-toggler  navButton bg-light d-xl-none "
+                type="button "
+                onClick={handleShow}
+              >
+                <span className="navbar-toggler-icon "></span>
+              </button>
+
+              <Navbar.Collapse className="justify-content-end d-xl-block ">
+                <Nav.Link href="/Home" className="text-light me-3 navHome">
+                  Home
+                </Nav.Link>
+                <Nav.Link href="/About" className="text-light me-3 navAbout">
+                  About
+                </Nav.Link>
+                <Nav.Link
+                  href="/Services"
+                  className="text-light me-3 navServices"
+                >
+                  Services
+                </Nav.Link>
+                <Nav.Link
+                  href="/Pricing"
+                  className="text-light me-3 navPricing"
+                >
+                  Pricing
+                </Nav.Link>
+                <NavDropdown
+                  title="Dropdown"
+                  id="basic-nav-dropdown"
+                  className="text-light me-3"
+                >
+                  <NavDropdown.Item href="#action/3.1" onClick={handleClose}>
+                    Action
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="#action/3.2" onClick={handleClose}>
+                    Another action
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="#action/3.3" onClick={handleClose}>
+                    Something
+                  </NavDropdown.Item>
+                  <NavDropdown.Divider />
+                  <NavDropdown
+                    title="Submenu"
+                    id="basic-nav-dropdown-sub"
+                    className="ms-5"
+                  >
+                    <NavDropdown.Item
+                      href="#action/3.4.1"
+                      onClick={handleClose}
+                    >
+                      Submenu item 1
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="#action/3.4.2"
+                      onClick={handleClose}
+                    >
+                      Submenu item 2
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      href="#action/3.4.3"
+                      onClick={handleClose}
+                    >
+                      Submenu item 3
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                </NavDropdown>
+                <Nav.Link
+                  href="/Contact"
+                  onClick={handleClose}
+                  className="text-light me-2"
+                >
+                  Contact
+                </Nav.Link>
+                <Button
+                  href="/Get"
+                  onClick={handleClose}
+                  className="text-white me-1 navButton"
+                >
+                  Get a Quote
+                </Button>
+              </Navbar.Collapse>
+            </Navbar>
+
+            <Offcanvas
+              show={show}
+              onHide={handleClose}
+              placement="end"
+              backdrop={false}
+            >
+              <Offcanvas.Header closeButton>
+                <Offcanvas.Title>Menu</Offcanvas.Title>
+              </Offcanvas.Header>
+
+              <Offcanvas.Body>
+                <Nav className="flex-column">
+                  <Nav.Link href="/Home" onClick={handleClose}>
+                    Home
+                  </Nav.Link>
+                  <Nav.Link href="/About" onClick={handleClose}>
+                    About
+                  </Nav.Link>
+                  <Nav.Link href="/Services" onClick={handleClose}>
+                    Services
+                  </Nav.Link>
+                  <Nav.Link href="/Pricing" onClick={handleClose}>
+                    Pricing
+                  </Nav.Link>
+
+              
+
+                  <Nav.Link href="/Contact" onClick={handleClose}>
+                    Contact
+                  </Nav.Link>
+                  <Button
+                    href="/Get"
+                    onClick={handleClose}
+                    className="text-white"
+                  >
+                    Get a Quote
+                  </Button>
+                </Nav>
+              </Offcanvas.Body>
+            </Offcanvas>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+};
+
+export default Header;
