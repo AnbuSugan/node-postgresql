@@ -1,0 +1,29 @@
+ <Col lg={6} className="order-1 order-lg-2 ">
+            <div>
+              <img
+                src="./img/about.jpg"
+                usemap="#image-map"
+                className="glitboximage mt-5  img-fluid"
+              />
+              <div class="container-fluid px-4 py-5 my-5 text-center">
+                <div class="lc-block d-block mx-auto mb-4">
+                  <a
+                    class="glightbox"
+                    href="https://youtu.be/LXb3EKWsInQ?si=BdoxTO4Kz5l-w9O_"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="7em"
+                      height="7em"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                      lc-helper="svg-icon"
+                      class="text-primary"
+                    >
+                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"></path>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Col>
