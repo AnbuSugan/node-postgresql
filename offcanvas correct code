@@ -1,0 +1,112 @@
+import React, { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import {
+  Navbar,
+  Nav,
+  Container,
+  NavDropdown,
+  Button,
+  Offcanvas,
+} from "react-bootstrap";
+
+function App() {
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
+
+  const handleCloseOffcanvas = () => setShowOffcanvas(false);
+  const handleShowOffcanvas = () => setShowOffcanvas(true);
+
+  return (
+    <div>
+      <Navbar expand="lg" bg="dark" variant="dark">
+        <Container>
+          <Navbar.Brand href="#">Logo</Navbar.Brand>
+
+          <Button
+            className="navbar-toggler navButton d-xl-none"
+            type="button"
+            onClick={handleShowOffcanvas}
+          >
+            <span className="navbar-toggler-icon"></span>
+          </Button>
+
+          <Navbar.Collapse className="justify-content-end d-xl-block">
+            <Nav className="navbar-nav">
+              <Nav.Link href="#">Home</Nav.Link>
+              <Nav.Link href="#">About</Nav.Link>
+              <Nav.Link href="#">Services</Nav.Link>
+              <NavDropdown title="Dropdown" id="navbarScrollingDropdown">
+                <NavDropdown.Item href="#">Link</NavDropdown.Item>
+                <NavDropdown.Item href="#">Another link</NavDropdown.Item>
+                <NavDropdown.Item href="#">A third link</NavDropdown.Item>
+                {/* Nested Dropdown in Navbar */}
+                <NavDropdown title="Nested Dropdown" id="nestedNavbarDropdown">
+                  <NavDropdown.Header className="nestedDrop">
+                    Nested Dropdown Title
+                  </NavDropdown.Header>
+                  <NavDropdown.Item href="#">Nested Link 1</NavDropdown.Item>
+                  <NavDropdown.Item href="#">Nested Link 2</NavDropdown.Item>
+                </NavDropdown>
+              </NavDropdown>
+              <Nav.Link href="#">Contact</Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
+      {/* Offcanvas */}
+      <Offcanvas
+        show={showOffcanvas}
+        onHide={handleCloseOffcanvas}
+        placement="end"
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Menu</Offcanvas.Title>
+        </Offcanvas.Header>
+
+        <Offcanvas.Body>
+          <Nav className="flex-column">
+            <Nav.Link href="#" onClick={handleCloseOffcanvas}>
+              Home
+            </Nav.Link>
+            <Nav.Link href="#" onClick={handleCloseOffcanvas}>
+              About
+            </Nav.Link>
+            <Nav.Link href="#" onClick={handleCloseOffcanvas}>
+              Services
+            </Nav.Link>
+            <NavDropdown
+              title="Dropdown"
+              id="navbarScrollingDropdown"
+              align="end"
+            >
+              <NavDropdown.Item href="#" onClick={handleCloseOffcanvas}>
+                Link
+              </NavDropdown.Item>
+              <NavDropdown.Item href="#" onClick={handleCloseOffcanvas}>
+                Another link
+              </NavDropdown.Item>
+              <NavDropdown.Item href="#" onClick={handleCloseOffcanvas}>
+                A third link
+              </NavDropdown.Item>
+              {/* Nested Dropdown in Offcanvas */}
+              <NavDropdown title="Nested Dropdown" id="nestedOffcanvasDropdown">
+                <NavDropdown.Header>Nested Dropdown Title</NavDropdown.Header>
+                <NavDropdown.Item href="#" onClick={handleCloseOffcanvas}>
+                  Nested Link 1
+                </NavDropdown.Item>
+                <NavDropdown.Item href="#" onClick={handleCloseOffcanvas}>
+                  Nested Link 2
+                </NavDropdown.Item>
+              </NavDropdown>
+            </NavDropdown>
+            <Nav.Link href="#" onClick={handleCloseOffcanvas}>
+              Contact
+            </Nav.Link>
+          </Nav>
+        </Offcanvas.Body>
+      </Offcanvas>
+    </div>
+  );
+}
+
+export default App;
