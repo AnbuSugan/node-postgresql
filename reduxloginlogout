@@ -1,0 +1,174 @@
+npx create-react-app reduxloginprofile
+npm i redux react-redux @reduxjs/toolkit
+npm start
+
+
+useDispatch global stor update
+useSelector using global store fetch
+
+
+index.js
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+import App from "./App";
+import { configureStore } from "@reduxjs/toolkit";
+import { Provider } from "react-redux";
+import userReducer from "./features/user";
+import themeReducer from "./features/theme";
+
+const store = configureStore({
+  reducer: {
+    user: userReducer,
+    theme: themeReducer,
+  },
+});
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
+);
+
+//App.js
+
+import "./App.css";
+import Login from "./Login";
+import Profile from "./Profile";
+import Colorselector from "./Colorselector";
+
+function App() {
+  return (
+    <div className="App">
+      <Profile />
+      <Login />
+      <Colorselector />
+    </div>
+  );
+}
+
+export default App;
+
+//Login.js
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { login, logout } from "./features/user";
+import { useSelector } from "react-redux";
+
+const Login = () => {
+  const dispatch = useDispatch();
+
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [email, setEmail] = useState("");
+  const user = useSelector((state) => state.user.value);
+
+  return (
+    <div>
+      {!user.name && (
+        <div>
+          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <input value={age} onChange={(e) => setAge(e.target.value)} />
+          <input value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+      )}
+
+      {!user.name ? (
+        <button onClick={() => dispatch(login({ name, age, email }))}>
+          Login
+        </button>
+      ) : (
+        <button onClick={() => dispatch(logout())}>logout</button>
+      )}
+    </div>
+  );
+};
+
+export default Login;
+//profile
+import React from "react";
+import { useSelector } from "react-redux";
+
+const Profile = () => {
+  const user = useSelector((state) => state.user.value);
+  const theme = useSelector((state) => state.theme.value);
+  if (!user.name) {
+    return;
+  }
+  return (
+    <div style={{ color: theme }}>
+      <h1>Profile</h1>
+      <h1>Name:{user.name}</h1>
+      <h1>Age:{user.age}</h1>
+      <h1>Email:{user.email}</h1>
+    </div>
+  );
+};
+
+export default Profile;
+
+//colorselector.js
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { changeColor } from "./features/theme";
+
+const Colorselector = () => {
+  const [color, setColor] = useState("black");
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <input
+        type="color"
+        value={color}
+        onChange={(e) => setColor(e.target.value)}
+      />
+      <button onClick={() => dispatch(changeColor(color))}>change Color</button>
+    </div>
+  );
+};
+
+export default Colorselector;
+
+//FeatureFolder
+User.js
+import { createSlice } from "@reduxjs/toolkit";
+
+export const userSlice = createSlice({
+  name: "user",
+  initialState: {
+    value: { name: "", age: 0, email: "" },
+  },
+  reducers: {
+    login: (state, action) => {
+      state.value = action.payload;
+    },
+    logout: (state, action) => {
+      state.value = { name: "", age: 0, email: "" };
+    },
+  },
+});
+
+export const { login, logout } = userSlice.actions;
+export default userSlice.reducer;
+
+//Theme.js
+import { createSlice } from "@reduxjs/toolkit";
+
+export const themeSlice = createSlice({
+  name: "user",
+  initialState: {
+    value: { color: "black" },
+  },
+  reducers: {
+    changeColor: (state, action) => {
+      state.value = action.payload;
+    },
+  },
+});
+
+export const { changeColor } = themeSlice.actions;
+export default themeSlice.reducer;
