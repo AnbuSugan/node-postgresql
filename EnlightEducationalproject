@@ -1,0 +1,38 @@
+//Educational Websites 
+
+//Aos Animation
+
+npm install --save aos@next
+
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
+  <div
+    data-aos="fade-up"
+    data-aos-offset="200"
+    data-aos-delay="50"
+    data-aos-duration="1000"
+    data-aos-easing="ease-in-out"
+    data-aos-mirror="true"
+    data-aos-once="false"
+    data-aos-anchor-placement="top-center"
+  >
+  </div>
+
+//Actions
+
+Login
+Logout
+Registration 
+dashboard 
+productcard
+add to cart
+increase decrease
+checkout page
+stripe method
+order status
+
+https://medium.appbase.io/product-page-checkout-page-payment-with-stripe-part-8-of-11-e10af5060b36
+
+Login +Logout +Registration+ dashboard+ productcard +add to cart+ increase +decrease+ checkout +page stripe method+ order status using react+ redux +nodejs+sql curiculam sample wesites templates 
+
