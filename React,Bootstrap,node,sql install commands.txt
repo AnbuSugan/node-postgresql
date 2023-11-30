@@ -14,6 +14,9 @@ npm i axios react-router-dom
 npm install react-bootstrap bootstrap
 npm i bootstrap-icons
 
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
+
 Grid-BreakPoints
 
 xs:0, <576px,
