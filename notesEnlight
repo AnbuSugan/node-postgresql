@@ -1,0 +1,4262 @@
+//server
+
+import express from "express";
+import mysql from "mysql";
+import cors from "cors";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import cookieParser from "cookie-parser";
+
+const salt = 10;
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(cookieParser());
+
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "Anbu1995@",
+  database: "register",
+});
+
+db.connect((err) => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log("connection success");
+  }
+});
+
+// Register
+app.post("/createUser", (req, res) => {
+  const sql = "INSERT INTO registers SET?";
+  bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
+    if (err) return res.json({ Error: "Error for hassing password" });
+    const values = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      date: req.body.date,
+      email: req.body.email,
+      mobileNumber: req.body.mobileNumber,
+      city: req.body.city,
+      state: req.body.state,
+      zip: req.body.zip,
+      userName: req.body.userName,
+
+      password: hash,
+    };
+
+    db.query(sql, [values], (err, result) => {
+      if (err) throw err;
+      return res.json(result);
+    });
+  });
+});
+
+// login
+
+app.post("/login", (req, res) => {
+  const sql = "SELECT * FROM registers WHERE userName = ?";
+
+  db.query(sql, [req.body.userName], async (err, data) => {
+    if (err) {
+      console.error("Login error in server:", err);
+      return res.status(500).json({ Error: "Internal Server Error" });
+    }
+
+    if (data.length > 0) {
+      try {
+        const isPasswordValid = await bcrypt.compare(
+          req.body.password.toString(),
+          data[0].password
+        );
+
+        if (isPasswordValid) {
+          return res.json({ Status: "Success" });
+        } else {
+          return res.status(401).json({ Error: "Invalid password" });
+        }
+      } catch (error) {
+        console.error("Password compare error:", error);
+        return res.status(500).json({ Error: "Internal Server Error" });
+      }
+    } else {
+      return res.status(404).json({ Error: "User not found" });
+    }
+  });
+});
+
+app.listen(3300, () => {
+  console.log("Listening");
+});
+//Courses
+import React from "react";
+import "./Courses.css";
+import { Container } from "react-bootstrap";
+
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+
+import Row from "react-bootstrap/Row";
+import * as formik from "formik";
+import * as yup from "yup";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+
+const Courses = () => {
+  const navigate = useNavigate();
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3300/createUser",
+        values
+      );
+      console.log("API Response:", response.data);
+      navigate("/Signin");
+    } catch (error) {
+      console.error("API Error:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  const { Formik } = formik;
+
+  const schema = yup.object().shape({
+    firstName: yup.string().required(),
+    lastName: yup.string().required(),
+    date: yup.string().required(),
+    email: yup
+      .string()
+      .required()
+      .matches(/@/, 'Email must contain "@" symbol'),
+    mobileNumber: yup
+      .string()
+      .required()
+      .matches(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+    city: yup.string().required(),
+    state: yup.string().required(),
+    zip: yup.string().required(),
+    userName: yup.string().required(),
+    password: yup.string().required(),
+
+    terms: yup.bool().required().oneOf([true], "terms must be accepted"),
+  });
+
+  return (
+    <div>
+      <div className="headbg">
+        <Container className="headwrapper1">
+          <Row>
+            <Col lg={6} className="order-2 order-lg-1">
+              <div className="headwrapper">
+                <h1 className="mt-5">Tech Career Programs</h1>
+
+                <p className="headpara">
+                  <ul>
+                    <li className="fs-3 mb-2">100% Job Placement Support.</li>
+                    <li className="fs-3 mb-2">
+                      Mentors from Top Global Product companies.
+                    </li>
+                    <li className="fs-3 mb-2">
+                      A Portfolio of Real-world Projects.
+                    </li>
+                    <li className="fs-3 mb-2">
+                      Globally Recognized Certification.
+                    </li>
+                  </ul>
+                </p>
+                <h3>Live Classes available in English, தமிழ்</h3>
+                <div className="clientcount">
+                  <Row className="gy-4">
+                    <Col className="col-xs-6 col-sm-3 col-lg-3 ">
+                      <div>
+                        <p className="clientCountNumber1">
+                          2000<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter1">Students</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber2">
+                          10<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter2">Courses</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber3">
+                          30<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter3">Staffs</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber4">
+                          30000<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter4">
+                          Students Placed
+                        </p>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+            </Col>
+            <Col lg={6} className="order-1 order-lg-2">
+              <div className="registerPage">
+                <Formik
+                  className="form"
+                  validationSchema={schema}
+                  onSubmit={handleSubmit}
+                  initialValues={{
+                    firstName: "",
+                    lastName: "",
+                    date: "",
+                    email: "",
+
+                    mobileNumber: "",
+                    city: "",
+                    state: "",
+                    zip: "",
+                    userName: "",
+                    password: "",
+                    terms: false,
+                  }}
+                >
+                  {({
+                    handleSubmit,
+                    handleChange,
+                    values,
+                    touched,
+                    errors,
+                  }) => (
+                    <Form noValidate onSubmit={handleSubmit}>
+                      <Row>
+                        <h1 className="headSign fs-2"> SignUp</h1>
+                        <Col>
+                          <Form.Group
+                            controlId="validationFormik101"
+                            className="position-relative"
+                          >
+                            <Form.Group className="position-relative mb-3">
+                              <Form.Label className="firstNameLabel">
+                                First Name
+                              </Form.Label>
+                              <Form.Control
+                                type="firstName"
+                                required
+                                name="firstName"
+                                onChange={handleChange}
+                                isInvalid={!!errors.firstName}
+                                isValid={touched.firstName && !errors.firstName}
+                                className="firstName"
+                                placeholder="FirstName"
+                              />
+
+                              <Form.Control.Feedback
+                                type="invalid"
+                                tooltip
+                                className="firstNameError"
+                              >
+                                {errors.firstName}
+                              </Form.Control.Feedback>
+                            </Form.Group>
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            as={Col}
+                            controlId="validationFormik101"
+                            className="position-relative"
+                          >
+                            <Form.Group className="position-relative mb-3">
+                              <Form.Label className="lastNameLabel ">
+                                Last Name
+                              </Form.Label>
+                              <Form.Control
+                                type="lastName"
+                                required
+                                name="lastName"
+                                onChange={handleChange}
+                                value={values.lastName}
+                                isInvalid={!!errors.lastName}
+                                isValid={touched.lastName && !errors.lastName}
+                                className="lastName"
+                                placeholder="LastName"
+                              />
+
+                              <Form.Control.Feedback type="invalid" tooltip>
+                                {errors.lastName}
+                              </Form.Control.Feedback>
+                            </Form.Group>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <Form.Group className="position-relative mb-3 mt-2">
+                            <Form.Label className="dateLabel">
+                              Date of Birth
+                            </Form.Label>
+                            <Form.Control
+                              type="date"
+                              required
+                              name="date"
+                              value={values.date}
+                              onChange={handleChange}
+                              isInvalid={!!errors.date}
+                              isValid={touched.date && !errors.date}
+                              className="date"
+                            />
+                            <Form.Control.Feedback
+                              type="invalid"
+                              tooltip
+                              className="dateError"
+                            >
+                              {errors.date}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group className="position-relative mb-3 mt-2">
+                            <Form.Label className="emailLabel">
+                              Email
+                            </Form.Label>
+                            <Form.Control
+                              type="email"
+                              required
+                              name="email"
+                              value={values.email}
+                              onChange={handleChange}
+                              isInvalid={!!errors.email}
+                              isValid={touched.email && !errors.email}
+                              className="email"
+                              placeholder="Email"
+                            />
+                            <Form.Control.Feedback type="invalid" tooltip>
+                              {errors.email}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            as={Col}
+                            controlId="validationFormik"
+                            className="position-relative"
+                          >
+                            <Form.Label className="mobileNumberLabel mt-2">
+                              MobileNumber
+                            </Form.Label>
+                            <Form.Control
+                              type="number"
+                              placeholder="mobileNumber"
+                              name="mobileNumber"
+                              value={values.mobileNumber}
+                              onChange={handleChange}
+                              isInvalid={!!errors.mobileNumber}
+                              isValid={touched.mob && !errors.state}
+                              className="mobileNumber"
+                            />
+
+                            <Form.Control.Feedback
+                              type="invalid"
+                              tooltip
+                              className="mobileError"
+                            >
+                              {errors.mobileNumber}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            as={Col}
+                            controlId="validationFormik103"
+                            className="position-relative"
+                          >
+                            <Form.Label className="cityLabel mt-2">
+                              City
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="City"
+                              name="city"
+                              value={values.city}
+                              onChange={handleChange}
+                              isValid={touched.city && !errors.city}
+                              isInvalid={!!errors.city}
+                              className="city"
+                            />
+
+                            <Form.Control.Feedback type="invalid" tooltip>
+                              {errors.city}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            as={Col}
+                            controlId="validationFormik104"
+                            className="position-relative"
+                          >
+                            <Form.Label className="stateLabel mt-4">
+                              State
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="State"
+                              name="state"
+                              value={values.state}
+                              onChange={handleChange}
+                              isValid={touched.state && !errors.state}
+                              isInvalid={!!errors.state}
+                              className="state"
+                            />
+                            <Form.Control.Feedback
+                              type="invalid"
+                              tooltip
+                              className="stateError"
+                            >
+                              {errors.state}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            as={Col}
+                            controlId="validationFormik105"
+                            className="position-relative"
+                          >
+                            <Form.Label className="zipLabel mt-4">
+                              Zip
+                            </Form.Label>
+                            <Form.Control
+                              type="number"
+                              placeholder="Zip"
+                              name="zip"
+                              value={values.zip}
+                              onChange={handleChange}
+                              isInvalid={!!errors.zip}
+                              isValid={touched.zip && !errors.zip}
+                              className="zip"
+                            />
+
+                            <Form.Control.Feedback type="invalid" tooltip>
+                              {errors.zip}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            as={Col}
+                            controlId="validationFormik105"
+                            className="position-relative"
+                          >
+                            <Form.Label className="userNameLabel mt-4">
+                              UserName
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="username"
+                              name="userName"
+                              value={values.userName}
+                              onChange={handleChange}
+                              isValid={touched.userName && !errors.userName}
+                              isInvalid={!!errors.userName}
+                              className="userName"
+                            />
+                            <Form.Control.Feedback
+                              type="invalid"
+                              tooltip
+                              className="userNameError"
+                            >
+                              {errors.userName}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            as={Col}
+                            controlId="validationFormik105"
+                            className="position-relative"
+                          >
+                            <Form.Label className="passwordLabel mt-4">
+                              Password
+                            </Form.Label>
+                            <Form.Control
+                              type="password"
+                              placeholder="Password"
+                              name="password"
+                              value={values.password}
+                              onChange={handleChange}
+                              isInvalid={!!errors.password}
+                              isValid={touched.password && !errors.password}
+                              className="password"
+                            />
+
+                            <Form.Control.Feedback type="invalid" tooltip>
+                              {errors.password}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Form.Group className="position-relative mt-5 termsLabels">
+                        <Form.Check
+                          required
+                          name="terms"
+                          label="Agree to terms and conditions"
+                          onChange={handleChange}
+                          isInvalid={!!errors.terms}
+                          feedback={errors.terms}
+                          feedbackType="invalid"
+                          id="validationFormik106"
+                          feedbackTooltip
+                          className="termsLabel"
+                        />
+                      </Form.Group>
+                      <Button type="submit" className="mt-5 registerBtn ">
+                        Register
+                      </Button>
+                      <h5 className="mt-3 mb-0 text-black">Let's Signin</h5>{" "}
+                      <Link to="/Signin" type="submit mt-0" className="mt-5 ">
+                        Signin
+                      </Link>{" "}
+                    </Form>
+                  )}
+                </Formik>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    </div>
+  );
+};
+
+export default Courses;
+//Courses.css
+/* Head Content */
+
+.headwrapper1 {
+  margin-top: 60px;
+}
+
+.headbg {
+  background-image: url("../img/bg13.jpg");
+
+  width: 100%;
+  min-height: 60vh;
+  background-color: var(--color-secondary);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  padding: 120px 0 60px 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* registerPage */
+.headSign {
+  color: black;
+}
+.invalid-tooltip {
+  color: red;
+  background-color: white !important;
+}
+
+.registerPage {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+
+  border: 2px solid white;
+  border-radius: 5%;
+  background-color: white;
+
+  font-family: "Poppins", sans-serif;
+  font-family: "Raleway", sans-serif;
+}
+.registerBtn {
+  width: 50%;
+}
+@media (max-width: 575.98px) {
+  .navBg {
+    background-color: #0a0d13;
+
+    z-index: 999;
+    padding: 15px 0;
+
+    position: fixed;
+    width: 100%;
+  }
+  .registerPage {
+    box-sizing: border-box;
+    width: 90%;
+    height: 100%;
+    margin-left: 4%;
+
+    border: 2px solid white;
+    border-radius: 5%;
+    background-color: white;
+
+    font-family: "Poppins", sans-serif;
+    font-family: "Raleway", sans-serif;
+  }
+  .headpara ul li {
+    font-size: 15px !important;
+  }
+  .headSign {
+    color: black;
+  }
+  .invalid-tooltip {
+    color: red;
+    background-color: white !important;
+    font-size: 8px !important;
+  }
+  .firstNameLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-left: 13% !important;
+  }
+  .firstName {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .form-control ::placeholder {
+    font-size: 5px !important;
+  }
+  .firstNameError {
+    margin-left: 20%;
+  }
+  .lastNameLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-right: 44% !important;
+  }
+  .lastName {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+
+  .dateLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-left: 13% !important;
+  }
+  .date {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .dateError {
+    margin-left: 20%;
+  }
+
+  .emailLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-right: 80% !important;
+  }
+  .email {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .mobileNumberLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-left: 13% !important;
+  }
+  .mobileNumber {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .mobileError {
+    margin-left: 20%;
+  }
+
+  .cityLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-right: 80% !important;
+  }
+  .city {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .stateLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-left: 13% !important;
+    margin-top: 20% !important;
+  }
+  .state {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .stateError {
+    margin-left: 20%;
+  }
+  .zipLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-right: 80% !important;
+    margin-top: 20% !important;
+  }
+  .zip {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .userNameLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-left: 13% !important;
+  }
+  .userName {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .userNameError {
+    margin-left: 20%;
+  }
+  .passwordLabel {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-right: 80% !important;
+  }
+  .password {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+
+  .termsLabel {
+    margin-right: 25% !important;
+    color: black;
+    font-size: 15px !important;
+    font-weight: 100px;
+  }
+  .termsLabels {
+    margin-left: 10%;
+  }
+
+  .form-check-input[type="checkbox"] {
+    border-color: blue;
+  }
+}
+
+.firstNameLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 30%;
+}
+.firstName {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+  margin-left: 20%;
+}
+.firstNameError {
+  margin-left: 20%;
+}
+.lastNameLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 50%;
+}
+.lastName {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+}
+
+.dateLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 23%;
+}
+.date {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+  margin-left: 20%;
+}
+.dateError {
+  margin-left: 20%;
+}
+
+.emailLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 85%;
+}
+.email {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+}
+.mobileNumberLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 15%;
+}
+.mobileNumber {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+  margin-left: 20%;
+}
+.mobileError {
+  margin-left: 20%;
+}
+
+.cityLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 90%;
+}
+.city {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+}
+.stateLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 45%;
+}
+.state {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+  margin-left: 20%;
+}
+.stateError {
+  margin-left: 20%;
+}
+.zipLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 90%;
+}
+.zip {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+}
+.userNameLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 25%;
+}
+.userName {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+  margin-left: 20%;
+}
+.userNameError {
+  margin-left: 20%;
+}
+.passwordLabel {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 90%;
+}
+.password {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+}
+
+.termsLabel {
+  margin-right: 35%;
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+}
+.termsLabels {
+  margin-left: 10%;
+}
+
+.form-check-input[type="checkbox"] {
+  border-color: blue;
+}
+
+.headwrapper1 {
+  margin-top: 60px;
+}
+.headwrapper {
+  text-align: justify;
+}
+.headpara {
+  text-align: justify;
+  margin-top: 5px;
+}
+
+.headwrapper1 {
+  margin-top: 60px;
+}
+.headwrapper {
+  text-align: justify;
+}
+.headpara {
+  text-align: justify;
+  margin-top: 5px;
+}
+
+.clientcount {
+  justify-content: space-between;
+
+  font-size: 32px;
+}
+.clientCountNumber1::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber2::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber3::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber4::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+@media (max-width: 575.98px) {
+  .clientCountNumber1::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+
+    margin-top: 8%;
+  }
+  .clientCountNumber2::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientCountNumber3::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientCountNumber4::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientcount {
+    text-align: center;
+  }
+  .clientCountNumber1 {
+    font-size: 30px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter1 {
+    font-size: 35px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber2 {
+    font-size: 30px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter2 {
+    font-size: 35px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber3 {
+    font-size: 35px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter3 {
+    font-size: 30px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber4 {
+    font-size: 35px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter4 {
+    font-size: 30px !important;
+    font-weight: 350;
+  }
+}
+//Sighnin
+import React from "react";
+import "./Signin.css";
+import { Container } from "react-bootstrap";
+
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+
+import Row from "react-bootstrap/Row";
+import * as formik from "formik";
+import * as yup from "yup";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+
+const Signin = () => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const response = await axios.post("http://localhost:3300/login", values);
+      console.log("API Response:", response.data);
+      navigate("/Register");
+    } catch (error) {
+      console.error("API Error:", error);
+      const errorMessageElement = document.getElementById("error-message");
+      if (errorMessageElement) {
+        errorMessageElement.textContent = `Username or password incorrect`;
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  const { Formik } = formik;
+
+  const schema = yup.object().shape({
+    userName: yup.string().required(),
+    password: yup.string().required(),
+
+    terms: yup.bool().required().oneOf([true], "terms must be accepted"),
+  });
+
+  return (
+    <div>
+      <div className="headbg">
+        <Container className="headwrapper1">
+          <Row>
+            <Col lg={6} className="order-2 order-lg-1">
+              <div className="headwrapper">
+                <h1 className="mt-5">Tech Career Programs</h1>
+
+                <p className="headpara">
+                  <ul>
+                    <li className="fs-3 mb-2">100% Job Placement Support.</li>
+                    <li className="fs-3 mb-2">
+                      Mentors from Top Global Product companies.
+                    </li>
+                    <li className="fs-3 mb-2">
+                      A Portfolio of Real-world Projects.
+                    </li>
+                    <li className="fs-3 mb-2">
+                      Globally Recognized Certification.
+                    </li>
+                  </ul>
+                </p>
+                <h3>Live Classes available in English, தமிழ்</h3>
+                <div className="clientcount">
+                  <Row className="gy-4">
+                    <Col className="col-xs-6 col-sm-3 col-lg-3 ">
+                      <div>
+                        <p className="clientCountNumber1">
+                          2000<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter1">Students</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber2">
+                          10<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter2">Courses</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber3">
+                          30<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter3">Staffs</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber4">
+                          30000<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter4">
+                          Students Placed
+                        </p>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+            </Col>
+            <Col lg={6} className="order-1 order-lg-2">
+              <div className="registerPage">
+                <Formik
+                  className="form"
+                  validationSchema={schema}
+                  onSubmit={handleSubmit}
+                  initialValues={{
+                    userName: "",
+                    password: "",
+                    terms: false,
+                  }}
+                >
+                  {({
+                    handleSubmit,
+                    handleChange,
+                    values,
+                    touched,
+                    errors,
+                  }) => (
+                    <Form noValidate onSubmit={handleSubmit}>
+                      <h1 className="headSign fs-2">Signin</h1>
+                      <Form.Group
+                        as={Col}
+                        controlId="validationFormik105"
+                        className="position-relative"
+                      >
+                        <Form.Label className="userNameLabels mt-4">
+                          Username
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Username"
+                          name="userName"
+                          value={values.userName}
+                          onChange={handleChange}
+                          isValid={touched.userName && !errors.userName}
+                          isInvalid={!!errors.userName}
+                          className="userName"
+                          id="userNames"
+                        />
+                        <Form.Control.Feedback
+                          type="invalid"
+                          tooltip
+                          className="userNameErrors"
+                        >
+                          {errors.userName}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                      <Form.Group
+                        as={Col}
+                        controlId="validationFormik105"
+                        className="position-relative"
+                      >
+                        <Form.Label className="passwordLabels mt-4">
+                          Password
+                        </Form.Label>
+                        <Form.Control
+                          type="password"
+                          placeholder="Password"
+                          name="password"
+                          value={values.password}
+                          onChange={handleChange}
+                          isInvalid={!!errors.password}
+                          isValid={touched.password && !errors.password}
+                          className="password"
+                          id="passwords"
+                        />
+
+                        <Form.Control.Feedback
+                          type="invalid"
+                          tooltip
+                          className="passwordErrors"
+                        >
+                          {errors.password}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                      <div id="error-message"></div>
+                      <Form.Group className="position-relative mt-5 termsLabelss">
+                        <Form.Check
+                          required
+                          name="terms"
+                          label="Agree to terms and conditions"
+                          onChange={handleChange}
+                          isInvalid={!!errors.terms}
+                          feedback={errors.terms}
+                          feedbackType="invalid"
+                          id="validationFormik106"
+                          feedbackTooltip
+                          className="termsLabels"
+                        />
+                      </Form.Group>
+                      <Button type="submit" className="mt-5 registerBtns ">
+                        Login
+                      </Button>
+                      <h5 className="mt-3 mb-0 text-black">Let's Register</h5>{" "}
+                      <Link to="/Courses" type="submit mt-0" className="mt-5 ">
+                        Register
+                      </Link>{" "}
+                    </Form>
+                  )}
+                </Formik>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    </div>
+  );
+};
+
+export default Signin;
+//Sighnin.css
+/* Head Content */
+
+.headwrapper1 {
+  margin-top: 60px;
+}
+#error-message {
+  color: red;
+  margin-top: 5%;
+}
+
+.headbg {
+  background-image: url("../img/bg13.jpg");
+
+  width: 100%;
+  min-height: 60vh;
+  background-color: var(--color-secondary);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  padding: 120px 0 60px 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+#error-message {
+  color: red;
+  margin-top: 5%;
+}
+
+/* registerPage */
+.headSign {
+  color: black;
+}
+.invalid-tooltip {
+  color: red;
+  background-color: white !important;
+}
+
+.registerPage {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+
+  border: 2px solid white;
+  border-radius: 5%;
+  background-color: white;
+
+  font-family: "Poppins", sans-serif;
+  font-family: "Raleway", sans-serif;
+}
+.registerBtns {
+  width: 40%;
+}
+@media (max-width: 575.98px) {
+  .navBg {
+    background-color: #0a0d13;
+
+    z-index: 999;
+    padding: 15px 0;
+
+    position: fixed;
+    width: 100%;
+  }
+  .registerPage {
+    box-sizing: border-box;
+    width: 90%;
+    height: 100%;
+    margin-left: 4%;
+
+    border: 2px solid white;
+    border-radius: 5%;
+    background-color: white;
+
+    font-family: "Poppins", sans-serif;
+    font-family: "Raleway", sans-serif;
+  }
+  .headpara ul li {
+    font-size: 15px !important;
+  }
+  .headSign {
+    color: black;
+  }
+  .invalid-tooltip {
+    color: red;
+    background-color: white !important;
+    font-size: 8px !important;
+  }
+
+  .userNameLabels {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-left: 6% !important;
+  }
+  #userNames {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+  .userNameErrors {
+    margin-left: 20%;
+  }
+  .passwordLabels {
+    color: black;
+    font-size: 15px !important;
+    font-weight: 50px !important;
+    margin-left: 5%;
+  }
+  #passwords {
+    border-color: blue;
+    width: 80%;
+    padding: 6px !important;
+  }
+
+  .termsLabels {
+    margin-right: 30% !important;
+    color: black;
+    font-size: 15px !important;
+    font-weight: 100px;
+  }
+  .termsLabelss {
+    margin-left: 10%;
+  }
+
+  .form-check-input[type="checkbox"] {
+    border-color: blue;
+  }
+}
+
+.userNameLabels {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 70%;
+}
+#userNames {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+
+  margin-left: 7%;
+}
+.userNameErrors {
+  margin-left: 7%;
+}
+.passwordLabels {
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+  margin-right: 70%;
+}
+#passwords {
+  border-color: blue;
+  width: 80%;
+  padding: 12px;
+  margin-left: 7%;
+}
+.passwordErrors {
+  margin-left: 7%;
+}
+
+.termsLabelss {
+  margin-right: 30%;
+  color: black;
+  font-size: 20px;
+  font-weight: 100px;
+}
+.termsLabels {
+  margin-left: 10%;
+}
+
+.form-check-input[type="checkbox"] {
+  border-color: blue;
+}
+
+.headwrapper1 {
+  margin-top: 60px;
+}
+.headwrapper {
+  text-align: justify;
+}
+.headpara {
+  text-align: justify;
+  margin-top: 5px;
+}
+
+.headwrapper1 {
+  margin-top: 60px;
+}
+.headwrapper {
+  text-align: justify;
+}
+.headpara {
+  text-align: justify;
+  margin-top: 5px;
+}
+
+.clientcount {
+  justify-content: space-between;
+
+  font-size: 32px;
+}
+.clientCountNumber1::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber2::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber3::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber4::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+@media (max-width: 575.98px) {
+  .clientCountNumber1::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+
+    margin-top: 8%;
+  }
+  .clientCountNumber2::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientCountNumber3::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientCountNumber4::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientcount {
+    text-align: center;
+  }
+  .clientCountNumber1 {
+    font-size: 30px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter1 {
+    font-size: 35px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber2 {
+    font-size: 30px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter2 {
+    font-size: 35px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber3 {
+    font-size: 35px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter3 {
+    font-size: 30px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber4 {
+    font-size: 35px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter4 {
+    font-size: 30px !important;
+    font-weight: 350;
+  }
+}
+//Register
+import React from "react";
+import "./Register.css";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Container, Col, Row, Carousel } from "react-bootstrap";
+import Card from "react-bootstrap/Card";
+import Accordion from "react-bootstrap/Accordion";
+import { Link } from "react-router-dom";
+
+const Register = () => {
+  return (
+    <div>
+      {/* Head Content */}
+      <div className="headbg">
+        <Container className="headwrapper1">
+          <Link to="/signin" type="submit" className="logOut">
+            Logout
+          </Link>
+
+          <Row>
+            <Col lg={6} className="order-2 order-lg-1">
+              <div className="headwrapper">
+                <h1>Tech Career Programs</h1>
+
+                <p className="headpara">
+                  <ul>
+                    <li>100% Job Placement Support.</li>
+                    <li>Mentors from Top Global Product companies.</li>
+                    <li>A Portfolio of Real-world Projects.</li>
+                    <li>Globally Recognized Certification.</li>
+                  </ul>
+                </p>
+                <h3>Live Classes available in English, தமிழ்</h3>
+                <div className="clientcount">
+                  <Row className="gy-4">
+                    <Col className="col-xs-6 col-sm-3 col-lg-3 ">
+                      <div>
+                        <p className="clientCountNumber1">
+                          2000<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter1">Students</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber2">
+                          10<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter2">Courses</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber3">
+                          30<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter3">Staffs</p>
+                      </div>
+                    </Col>
+
+                    <Col className="col-xs-6 col-sm-3 col-lg-3">
+                      <div>
+                        <p className="clientCountNumber4">
+                          30000<sup>+</sup>
+                        </p>
+
+                        <p className="fs-5 clientCountLetter4">
+                          Students Placed
+                        </p>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+            </Col>
+            <Col lg={6} className="order-1 order-lg-2">
+              <div className="heroimg">
+                <img src="./assets/img_sm_11.jpg" alt="bg" />
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+
+      {/* About Page */}
+
+      <Container>
+        <Row>
+          <Col lg={6} className="order-2 order-lg-1 mt-5">
+            <h1 className="aboutwrapper fw-bold ">About Us</h1>
+            <p className="aboutparawrapper">
+              Enlight Educational Institude is one of the industry’s leading
+              Project Based Career Programs that promises 100% Job Placement
+              Support on completing the course. Conducted by an IIT Madras
+              incubated company & designed by our Founders(Ex-Paypal Employees)
+              also offers mentoring through experts from companies like Google,
+              Microsoft, Flipkart, Zoho & Freshworks for placing you in top
+              companies with high salaries.
+            </p>
+
+            <Col>
+              <div className="diagram">
+                <i class="bi bi-person-workspace"></i>
+              </div>
+            </Col>
+            <Col>
+              <h5 className="diagramwrappercontentheading1">
+                Experiential Learning
+              </h5>
+              <p className="diagramwrappercontentheadingpara1">
+                By engaging students in hands-on experiences and reflection,
+                they are better able to connect theories and knowledge learned
+                in the classroom to real-world situations.
+              </p>
+            </Col>
+            <Col>
+              <div className="diagram">
+                <i class="bi bi-person-vcard-fill"></i>
+              </div>
+            </Col>
+            <Col>
+              <h5 className="diagramwrappercontentheading1">
+                Regular Seminars
+              </h5>
+              <p className="diagramwrappercontentheadingpara1">
+                A seminar may be a gathering of people for the purpose of
+                discussing a stated topic. Such gath erings are usually
+                interactive sessions where the participants engage in
+                discussions on topics.
+              </p>
+            </Col>
+            <Col>
+              <div className="diagram">
+                <i class="bi bi-microsoft-teams"></i>
+              </div>
+            </Col>
+            <Col>
+              <h5 className="diagramwrappercontentheading1">Guest Lectures</h5>
+              <p className="diagramwrappercontentheadingpara1">
+                Guest Lecture is a concept that helps the students in gaining
+                additional knowledge. Universities and colleges make sur e to
+                arrange a guest lecture for students in order to enhance their
+                knowledge.
+              </p>
+            </Col>
+          </Col>
+          {/* Img*/}
+          <Col lg={6} className="order-1 order-lg-2 mt-5">
+            <div>
+              <img
+                src="./assets/img_sm_12.jpg"
+                alt="bg"
+                usemap="#image-map"
+                className="glitboximage   img-fluid"
+              />
+            </div>
+          </Col>
+        </Row>
+      </Container>
+
+      <Container>
+        <Row>
+          <Col>
+            <div>
+              <Col>
+                <div>
+                  <div className="icon1 ">
+                    <i class="bi bi-people-fill"></i>
+                  </div>
+                </div>
+              </Col>
+              <Col>
+                <p className="fs-3 contenthead1 fw-bold ">Experience</p>
+                <p className="content1">
+                  Started at the year of 2014. Running successfully for the past
+                  6+ years with well talented and experienced trainers.
+                </p>
+                <p className="contenticon1 fs-6 fw-bold">
+                  Learn More<i class="bi bi-arrow-right"></i>
+                </p>
+              </Col>
+            </div>
+          </Col>
+          {/* Transport Icon 2 */}
+          <Col>
+            <Col>
+              <div>
+                <div className="icon2">
+                  <i class="bi bi-highlighter"></i>
+                </div>
+              </div>
+            </Col>
+            <Col>
+              <p className="fs-3 contenthead2 fw-bold">Education</p>
+              <p className="content2">
+                All category of age persons can get knowledge on computer and
+                Spoken English in simple and creative manner.
+              </p>
+              <p className="contenticon2 fs-6 fw-bold">
+                Learn More<i class="bi bi-arrow-right"></i>
+              </p>
+            </Col>
+          </Col>
+          {/* Transport Icon 3 */}
+          <Col>
+            <Col>
+              <div>
+                <div className="icon3">
+                  <i class="bi bi-laptop"></i>
+                </div>
+              </div>
+            </Col>
+            <Col>
+              <p className="fs-3 contenthead3 fw-bold">Certificate</p>
+              <p className="content3">
+                Candidates can get National Approved certificates for all
+                computer courses and company certificate for Internships.
+              </p>
+              <p className="contenticon3 fs-6 fw-bold">
+                Learn More<i class="bi bi-arrow-right"></i>
+              </p>
+            </Col>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* Card Program */}
+
+      <Container>
+        <Row>
+          <Col>
+            <div className="service">
+              <h1 className="servicehead ">OUR SERVICES</h1>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+      {/* card 1 */}
+      <Container>
+        <Row>
+          {/* card 1 */}
+          <Col className="col-sm-8 col-md-6 col-lg-4">
+            <Card className="mb-5 card card1 ">
+              <Card.Img
+                variant="top"
+                src="./assets/img_sm_14.jpg"
+                className="cardImg"
+              />
+              <Card.Body>
+                <Card.Title>Full Stack Development Program</Card.Title>
+                <Card.Text>
+                  Master both front-end and back-end technologies, becoming a
+                  versatile developer capable of creating full-fledged web
+                  applications.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          {/* card 2 */}
+          <Col className="col-sm-8 col-md-6 col-lg-4">
+            <Card className="mb-5 card2">
+              <Card.Img
+                variant="top"
+                src="./assets/img_sm_15.jpg"
+                className="cardImg"
+              />
+              <Card.Body>
+                <Card.Title>
+                  IIT-M Certified Advanced Programming Professional & Master
+                  Data Science
+                </Card.Title>
+                <Card.Text>
+                  Delve deep into advanced programming languages, algorithms,
+                  and data structures.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          {/* card 3 */}
+          <Col className="col-sm-8 col-md-6 col-lg-4">
+            <Card className="mb-5 cardThree card3">
+              <Card.Img
+                variant="top"
+                src="./assets/img_sm_16.jpg"
+                className="cardImg"
+              />
+              <Card.Body>
+                <Card.Title>
+                  Automation Testing using Selenium Program
+                </Card.Title>
+                <Card.Text>
+                  Gain in-depth knowledge of Selenium, the industry-standard for
+                  web automation testing.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+
+      <Container>
+        <Row>
+          <Col className="col-sm-8 col-md-6 col-lg-4">
+            <Card className="mb-5 truckingCart card4">
+              <Card.Img
+                variant="top"
+                src="./assets/img_sm_17.jpg"
+                className="cardImg"
+              />
+              <Card.Body>
+                <Card.Title>UI/UX Program</Card.Title>
+                <Card.Text>
+                  Learn to use industry-standard design tools such as Adobe XD,
+                  Sketch, and Figma. Gain hands-on experience to turn your
+                  design ideas into interactive prototypes.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col className=" col-sm-8 col-md-6 col-lg-4">
+            <Card className="mb-5  packageCart card5">
+              <Card.Img
+                variant="top"
+                src="./assets/img_sm_18.jpg"
+                className="cardImg"
+              />
+              <Card.Body>
+                <Card.Title>Java Automation Testing Program</Card.Title>
+                <Card.Text>
+                  Develop a strong foundation in Java programming, tailored
+                  specifically for automation testing. Learn key concepts,
+                  syntax, and principles necessary for effective test scripting.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col className=" col-sm-8 col-md-6 col-lg-4">
+            <Card className="mb-5 wareHouseCard card6">
+              <Card.Img
+                variant="top"
+                src="./assets/img_sm_19.jpg"
+                className="cardImg"
+              />
+              <Card.Body>
+                <Card.Title>DevOps Program</Card.Title>
+                <Card.Text>
+                  Gain a solid understanding of DevOps principles, practices,
+                  and culture. Explore the importance of collaboration,
+                  communication, and continuous improvement in a DevOps
+                  environment.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* Call To Action */}
+
+      <div className="bgImageCenter">
+        <h3 className="bgImageCenterhaed">Started @2014</h3>
+        <p className="text-light">
+          Initially started as a Computer and Tuition Coaching center. Focus
+          towards the welfare of the students in both academic and social
+          welfare. Started a project development center with first class
+          training and realtime practical demo for both Mini and Major academic
+          projects. Our Institute collaborated with various IT companies at
+          Madurai, Coimbatore and Chennai to deliver high class Internship
+          Training and Placement Training for the Students.
+        </p>
+        <button className="buttonCall">Call To Acton</button>
+      </div>
+
+      {/* Feature */}
+
+      <Container className="feature">
+        <Row>
+          <Col lg={6} className="order-1 order-lg-1">
+            <div>
+              <img
+                src="./assets/img_sm_22.jpg"
+                alt=""
+                className="imgfeature w-75 h-75"
+              />
+            </div>
+          </Col>
+          <Col lg={6} className="order-2 order-lg-2">
+            <h3 className="imgfeaturehead ">
+              Future Scope of Full Stack Training
+            </h3>
+            <p className="imgfeaturepara">
+              The future scope of the full-stack developer is promising as they
+              will have skills and experience in every layer of website
+              development that contains the presentation, business logic, and
+              database layer. They will know numerous modernized technologies
+              and frameworks to fasten up the website development and they
+              should be experts in delivering quality and error-free websites to
+              their clients within the deadline.
+            </p>
+
+            <p className="imgfeaturepara">
+              <i class="bi bi-check check"></i>
+              Companies are looking to hire fewer resources who are technically
+              sound in various technologies such as React.js, JavaScript,
+              MongoDB, and Python.
+            </p>
+            <p className="imgfeaturepara">
+              {" "}
+              <i class="bi bi-check check"></i>
+              Diverse knowledge and skillsets for working in multiple projects
+              with the ability of single-handed that brings more benefits for
+              the organization.
+            </p>
+            <p className="imgfeaturepara">
+              {" "}
+              <i class="bi bi-check check"></i>
+              Full-stack developers can give quality applications as they are
+              taking care of whole areas such as designing, developing, testing,
+              debugging, and deploying.
+            </p>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* feature 2 */}
+      <Container className="feature2">
+        <Row>
+          <Col className="order-2 order-lg-1 feature2Content">
+            <h4 className="imgfeaturehead2 ">Master Data Science</h4>
+            <p className="imgfeaturepara2">
+              Understanding statistical concepts, probability theory, and
+              mathematical foundations is crucial for data analysis and
+              modeling. Proficiency in programming languages like Python and R,
+              as well as knowledge of algorithms and data structures, is
+              essential. Learning techniques to collect and gather data from
+              various sources, including databases, APIs, and web scraping.
+              Dealing with missing values, outliers, and preparing raw data for
+              analysis. Using statistical and visual tools to understand the
+              patterns, relationships, and distributions within the
+              data.Creating effective visualizations to communicate findings and
+              insights to both technical and non-technical stakeholders.
+              Understanding and implementing different machine learning
+              algorithms for classification, regression, clustering, and
+              dimensionality reduction.Assessing model performance and
+              optimizing hyperparameters for better results.Handling and
+              processing large-scale datasets using distributed computing
+              technologies. Exploring advanced techniques like deep learning for
+              tasks such as image recognition, natural language processing, and
+              more. Tailoring data science techniques to specific industries
+              like finance, healthcare, marketing, etc.
+            </p>
+          </Col>
+          <Col className="order-1 order-lg-2">
+            <div>
+              <img
+                src="./assets/img_sm_23.jpg"
+                alt=""
+                className="imgfeature2 "
+              />
+            </div>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* feature 3 */}
+      <Container className="feature3">
+        <Row>
+          <Col className="order-1 order-lg-1">
+            <div>
+              <img
+                src="./assets/img_sm_24.jpg"
+                alt=""
+                className="imgfeature3 w-75"
+              />
+            </div>
+          </Col>
+          <Col className="order-2 order-lg-2">
+            <h3 className="imgfeaturehead3">
+              Automation Testing using Selenium Program
+            </h3>
+            <p className="imgfeaturepara3">
+              Selenium is often used within a test automation framework. A test
+              automation framework is a set of guidelines, coding standards, and
+              tools that help in efficient and effective test automation.
+            </p>
+
+            <p className="imgfeaturepara3">
+              <i class="bi bi-check check"></i>
+              Selenium supports multiple programming languages, including Java,
+              Python, C#, Ruby, and JavaScript. You choose a language based on
+              your team's expertise and project requirements.
+            </p>
+            <p className="imgfeaturepara3">
+              {" "}
+              <i class="bi bi-check check"></i>
+              The WebDriver is a key component of Selenium that allows you to
+              interact with web browsers. You need to set up the WebDriver for
+              the browser you intend to automate (e.g., ChromeDriver for Chrome,
+              GeckoDriver for Firefox).
+            </p>
+            <p className="imgfeaturepara3">
+              {" "}
+              <i class="bi bi-check check"></i>
+              Create test scripts using the chosen programming language. Test
+              scripts are sequences of commands that interact with web elements
+              on a webpage. You can locate elements using various locators such
+              as ID, name, class name, XPath, etc.
+            </p>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* feature 4 */}
+      <Container className="feature4">
+        <Row>
+          <Col className="order-2 order-lg-1">
+            <h4 className="imgfeaturehead4">UI/UX Program</h4>
+            <p className="imgfeaturepara4">
+              Introduction to the principles of user-centered design,
+              emphasizing the importance of designing products with the end user
+              in mind.Conducting user research to understand the target
+              audience, their behaviors, preferences, and pain points.
+              Techniques may include surveys, interviews, and usability
+              testing.Organizing and structuring information to create a clear
+              and logical flow within the interface. This involves creating
+              sitemaps and defining navigation structures.Creating low-fidelity
+              wireframes to outline the basic structure and layout of a design.
+              Prototyping involves building interactive, clickable models to
+              simulate user interactions.Exploring color theory, typography,
+              iconography, and other visual elements to create visually
+              appealing and cohesive designs. Understanding design tools like
+              Adobe XD, Sketch, or Figma.Defining how users interact with the
+              interface, including the design of buttons, forms, animations, and
+              other interactive elements. Planning and conducting usability
+              tests to gather feedback on prototypes or existing designs.
+              Analyzing results and iterating on designs based on user feedback.
+            </p>
+          </Col>
+          <Col className="order-1 order-lg-2">
+            <div>
+              <img
+                src="./assets/img_sm_25.jpg"
+                alt=""
+                className="imgfeature4 w-75"
+              />
+            </div>
+          </Col>
+        </Row>
+      </Container>
+      {/* feature 5 */}
+
+      <Container className="feature5">
+        <Row>
+          <Col lg={6} className="order-1 order-lg-1">
+            <div>
+              <img
+                src="./assets/img_sm_27.jpg"
+                alt=""
+                className="imgfeature5 w-75 h-75"
+              />
+            </div>
+          </Col>
+          <Col lg={6} className="order-2 order-lg-2">
+            <h3 className="imgfeaturehead5">Java Automation Testing Program</h3>
+            <p className="imgfeaturepara5">
+              These are popular testing frameworks for Java that provide
+              annotations and assertions to structure and execute test cases.
+              They also support test grouping, parallel execution, and test
+              parameterization.
+            </p>
+
+            <p className="imgfeaturepara5">
+              <i class="bi bi-check check"></i>
+              These build tools help manage project dependencies, including
+              testing frameworks, libraries, and WebDriver. They also facilitate
+              the execution of test suites.
+            </p>
+            <p className="imgfeaturepara5">
+              {" "}
+              <i class="bi bi-check check"></i>
+              Selenium is a powerful tool for automating web browsers. WebDriver
+              allows Java developers to interact with web elements, perform
+              actions, and retrieve information from web pages.
+            </p>
+            <p className="imgfeaturepara5">
+              {" "}
+              <i class="bi bi-check check"></i>
+              The Page Object Model is a design pattern that promotes the
+              creation of reusable and maintainable code. Page objects
+              encapsulate the behavior and structure of web pages, making the
+              test scripts more readable and modular.
+            </p>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* feature 6 */}
+      <Container className="feature6">
+        <Row>
+          <Col className="order-2 order-lg-1 feature6Content">
+            <h4 className="imgfeaturehead6 ">DevOps Program</h4>
+            <p className="imgfeaturepara6">
+              DevOps emphasizes a cultural shift, fostering collaboration and
+              communication between traditionally siloed development and
+              operations teams. The goal is to break down barriers and create a
+              shared responsibility for the entire software delivery lifecycle.
+              DevOps promotes a culture of continuous improvement, encouraging
+              teams to regularly reflect on their processes and identify areas
+              for optimization. This involves learning from failures,
+              implementing feedback loops, and embracing a mindset of constant
+              enhancement. A key tenet of DevOps is the automation of manual and
+              repetitive tasks throughout the software development lifecycle.
+              This includes automating testing, deployment, infrastructure
+              provisioning, and more.Developers regularly integrate their code
+              changes into a shared repository, where automated builds and tests
+              are triggered. This helps identify and address integration issues
+              early in the development process.With continuous delivery, the
+              software is kept in a deployable state at all times
+            </p>
+          </Col>
+          <Col className="order-1 order-lg-2">
+            <div>
+              <img
+                src="./assets/img_sm_26.jpg"
+                alt=""
+                className="imgfeature6"
+              />
+            </div>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* Pricing */}
+
+      {/* <Container>
+        <Row>
+          <div>
+            <h3 className="priceHead">PRICING</h3>
+          </div>
+        </Row>
+      </Container>
+
+      <Container>
+        <Row className="ms-5">
+          <Col>
+            <div className="freePlan1 col-lg-6">
+              <h2 className="priceHead1">FullStack Development</h2>{" "}
+              <h2>
+                <i class="bi bi-currency-dollar dollar1"></i>{" "}
+                <span className="zero1">50</span>
+                <span className="fs-5 month1">/month</span>
+              </h2>
+              <p className="priceHead1Para1">
+                <i class="bi bi-check check iconPara1"></i>Companies are looking
+                to hire technologies such as React.js, JavaScript, MongoDB, and
+                Python.
+              </p>
+              <p className="priceHead1Para1">
+                <i class="bi bi-check check iconPara1"></i>Diverse knowledge and
+                skillsets for working in multiple projects with the ability of
+              </p>
+              <p className="priceHead1Para1">
+                <i class="bi bi-check check iconPara1"></i>Full-stack developers
+                can give quality applications as they are taking care of whole
+                areas such as designing, developing,
+              </p>
+              <Button className="paraButton1">Buy Now</Button>
+            </div>
+          </Col>
+
+          <Col>
+            <div className="freePlan2 col-lg-6">
+              <h2 className="priceHead2">Automation Testing</h2>{" "}
+              <h2>
+                <i class="bi bi-currency-dollar dollar2 "></i>
+                <span className="zero2">60</span>
+                <span className="fs-5 month2">/month</span>
+              </h2>
+              <p className="priceHead1Para2">
+                <i class="bi bi-check check iconPara2"></i>Selenium supports
+                multiple programming languages, including Java, Python, C#,
+                Ruby, and JavaScript.
+              </p>
+              <p className="priceHead1Para2">
+                <i class="bi bi-check check iconPara2"></i>The WebDriver is a
+                key component of Selenium that allows you to interact with web
+                browsers.
+              </p>
+              <p className="priceHead1Para2">
+                <i class="bi bi-check check iconPara2"></i>Create test scripts
+                using the chosen programming language.
+              </p>
+              <Button className="paraButton2">Buy Now</Button>
+            </div>
+          </Col>
+
+          <Col>
+            <div className="freePlan3 col-lg-6">
+              <h2 className="priceHead3">UI/UX Program</h2>{" "}
+              <h2>
+                <i class="bi bi-currency-dollar dollar3 "></i>
+                <span className="zero3">70</span>
+                <span className="fs-5 month3">/month</span>
+              </h2>
+              <p className="priceHead1Para3">
+                <i class="bi bi-check check iconPara3"></i>Prototyping involves
+                building interactive, clickable models to simulate user
+                interactions.Exploring
+              </p>
+              <p className="priceHead1Para3">
+                <i class="bi bi-check check iconPara3"></i>visual elements to
+                create visually appealing and cohesive designs. Understanding
+                design tools
+              </p>
+              <p className="priceHead1Para3">
+                <i class="bi bi-check check iconPara3"></i>Defining how users
+                interact with the interface, including the design of buttons,
+              </p>
+              <Button className="paraButton3">Buy Now</Button>
+            </div>
+          </Col>
+        </Row>
+      </Container> */}
+
+      {/* carousel */}
+
+      <Carousel className="testimoialsBg">
+        <Carousel.Item>
+          <div className="carousel-content">
+            <img
+              src="./assets/img_sm_28.jpg"
+              className="testimonials"
+              alt="..."
+            />
+          </div>
+          <div className="text-center caption-containe">
+            <div className="stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div className="content">
+              <h3>Saul Goodman</h3>
+              <h4>Ceo &amp; Founder</h4>
+              <p>
+                <i className="bi bi-quote quote-icon-left"></i>
+                The dynamic and visionary leader of our computer coaching
+                center, brings a wealth of experience and a deep passion for
+                technology education.
+                <i class="bi bi-chat-right-quote-fill"></i>
+              </p>
+            </div>
+          </div>
+        </Carousel.Item>
+
+        <Carousel.Item>
+          <div className="carousel-content">
+            <img
+              src="./assets/img_sm_29.jpg"
+              className="testimonials"
+              alt="..."
+            />
+          </div>
+          <div className="text-center caption-container">
+            <div class="stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div className="content">
+              <h3>Sara Wilsson</h3>
+              <h4>Designer</h4>
+              <p>
+                <i class="bi bi-quote quote-icon-left"></i>
+                Responsible for creating spaces that foster collaboration,
+                engagement, and optimal learning experiences, the designer
+                combines artistic flair with a deep understanding of the
+                technological and educational needs of our institution.
+                <i class="bi bi-chat-right-quote-fill"></i>
+              </p>
+            </div>
+          </div>
+        </Carousel.Item>
+
+        <Carousel.Item>
+          <div className="carousel-content">
+            <img
+              src="./assets/img_sm_30.jpg"
+              className="testimonials"
+              alt="..."
+            />
+          </div>
+          <div className="text-center caption-container">
+            <div class="stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div className="content">
+              <h3>Jena Karlis</h3>
+              <h4>Full Stack Developer Staff</h4>
+              <p>
+                <i class="bi bi-quote quote-icon-left"></i>
+                The Full Stack Developer Staff plays a crucial role in
+                designing, implementing, and maintaining the software
+                applications that power our computer coaching center.
+                <i class="bi bi-chat-right-quote-fill"></i>
+              </p>
+            </div>
+          </div>
+        </Carousel.Item>
+
+        <Carousel.Item>
+          <div className="carousel-content">
+            <img
+              src="./assets/img_sm_31.jpg"
+              className="testimonials"
+              alt="..."
+            />
+          </div>
+          <div className="text-center caption-container">
+            <div class="stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div className="content">
+              <h3>Matt Brandon</h3>
+              <h4>DevOps</h4>
+              <p>
+                <i class="bi bi-quote quote-icon-left"></i>
+                The DevOps Staff plays a crucial role in enhancing the
+                efficiency, reliability, and scalability of our software
+                development and deployment processes.
+                <i class="bi bi-chat-right-quote-fill"></i>
+              </p>
+            </div>
+          </div>
+        </Carousel.Item>
+        <Carousel.Item>
+          <div className="carousel-content">
+            <img
+              src="./assets/img_sm_32.jpg"
+              className="testimonials"
+              alt="..."
+            />
+          </div>
+          <div className="text-center caption-container">
+            <div class="stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div className="content">
+              <h3>John Larson</h3>
+              <h4>Java Automation Staff</h4>
+              <p>
+                <i class="bi bi-quote quote-icon-left"></i>
+                The Java Automation Staff is responsible for designing,
+                developing, and maintaining automated test scripts to ensure the
+                reliability and efficiency of our software applications
+                <i class="bi bi-chat-right-quote-fill"></i>
+              </p>
+            </div>
+          </div>
+        </Carousel.Item>
+      </Carousel>
+
+      <Container>
+        <Row>
+          <h1 className="frequentHead mt-5">FREQUENTLY ASKED QUESTIONS</h1>
+
+          {/* Accordian */}
+
+          <Accordion>
+            <Accordion.Item eventKey="0">
+              <Accordion.Header>
+                {" "}
+                <i
+                  className="bi bi-question-circle question-icon"
+                  style={{
+                    color: "blue",
+                    padding: "5px",
+                    margin: "2px",
+                  }}
+                ></i>
+                Who is eligible for this full stack developer course?
+              </Accordion.Header>
+              <Accordion.Body>
+                To keep the opportunities fair, we provide a PreBootcamp session
+                for Enlight Class Interested students as a way to understand how
+                ready they are to become a Full Stack Developer. A Small
+                Eligibility test will be conducted right after the Pre-Bootcamp
+                to provide you with a final ticket to be part of Zen Bootcamp.
+              </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="1">
+              <Accordion.Header>
+                {" "}
+                <i
+                  className="bi bi-question-circle question-icon"
+                  style={{
+                    color: "blue",
+                    padding: "5px",
+                    margin: "2px",
+                  }}
+                ></i>
+                I’m from a non-engineering background or New to programming. Am
+                I eligible for this course?
+              </Accordion.Header>
+              <Accordion.Body>
+                With the objective of creating as many job opportunities for our
+                students, we do intend to help every student who is willing to
+                “make the extra catching up needed” in terms of programming &
+                Development logic.
+              </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="2">
+              <Accordion.Header>
+                {" "}
+                <i
+                  className="bi bi-question-circle question-icon"
+                  style={{
+                    color: "blue",
+                    padding: "5px",
+                    margin: "2px",
+                  }}
+                ></i>
+                Which companies will I be given opportunities for placements?
+              </Accordion.Header>
+              <Accordion.Body>
+                We have partnered with over 200+ companies including Paypal,
+                Freshworks,Zoho, Juspay, DBS, Scapic, OrangeScape, etc.
+              </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="3">
+              <Accordion.Header>
+                {" "}
+                <i
+                  className="bi bi-question-circle question-icon"
+                  style={{
+                    color: "blue",
+                    padding: "5px",
+                    margin: "2px",
+                  }}
+                ></i>
+                What is the duration of this course?
+              </Accordion.Header>
+              <Accordion.Body>
+                3 Months for students (Monday to Friday), 5 Months for Working
+                professional and Students (Saturday & Sunday)
+              </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="4">
+              <Accordion.Header>
+                {" "}
+                <i
+                  className="bi bi-question-circle question-icon"
+                  style={{
+                    color: "blue",
+                    padding: "5px",
+                    margin: "2px",
+                  }}
+                ></i>
+                What are the payment options?
+              </Accordion.Header>
+              <Accordion.Body>
+                For details regarding the payment reach us at 785264 78564.
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </Row>
+      </Container>
+    </div>
+  );
+};
+
+export default Register;
+//Register.css
+/* Head Content */
+
+.logOut {
+  position: fixed;
+  top: 2%;
+  left: 80%;
+  z-index: 999;
+  text-decoration: none;
+
+  font-size: 18px;
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-weight: 400;
+  color: #e6e6e6;
+
+  opacity: 1 !important;
+}
+@media (max-width: 575.98px) {
+  .logOut {
+    position: fixed;
+    top: 2%;
+    left: 60%;
+    z-index: 999;
+    text-decoration: none;
+
+    font-size: 18px;
+    padding-top: 1.2rem;
+    padding-bottom: 1.2rem;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-weight: 400;
+    color: #e6e6e6;
+  }
+}
+
+.headwrapper1 {
+  margin-top: 60px;
+}
+.headwrapper {
+  text-align: justify;
+}
+.headpara {
+  text-align: justify;
+  margin-top: 5px;
+}
+
+.headwrapper1 {
+  margin-top: 60px;
+}
+.headwrapper {
+  text-align: justify;
+}
+.headpara {
+  text-align: justify;
+  margin-top: 5px;
+}
+
+.headbg {
+  background-image: url("../img/bg13.jpg");
+
+  width: 100%;
+  min-height: 60vh;
+  background-color: var(--color-secondary);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  padding: 120px 0 60px 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.heroimg img {
+  width: 500px;
+  margin-left: 68px;
+}
+
+.clientcount {
+  justify-content: space-between;
+
+  font-size: 32px;
+}
+.clientCountNumber1::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber2::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber3::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+.clientCountNumber4::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 45%;
+  background-color: blue;
+
+  margin-top: 8%;
+}
+@media (max-width: 575.98px) {
+  .heroimg img {
+    width: 300px;
+    text-align: center;
+    margin-bottom: 100px;
+    margin-left: 10px;
+  }
+  .clientCountNumber1::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+
+    margin-top: 8%;
+  }
+  .clientCountNumber2::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientCountNumber3::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientCountNumber4::after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 45%;
+    background-color: blue;
+    margin-left: 25%;
+    margin-top: 8%;
+  }
+  .clientcount {
+    text-align: center;
+  }
+  .clientCountNumber1 {
+    font-size: 30px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter1 {
+    font-size: 35px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber2 {
+    font-size: 30px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter2 {
+    font-size: 35px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber3 {
+    font-size: 35px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter3 {
+    font-size: 30px !important;
+    font-weight: 350;
+  }
+  .clientCountNumber4 {
+    font-size: 35px;
+
+    font-weight: 350;
+  }
+
+  .clientCountLetter4 {
+    font-size: 30px !important;
+    font-weight: 350;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .heroimg img {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .heroimg img {
+    margin-bottom: 30px;
+    text-align: center;
+    width: 410px;
+  }
+}
+
+/* TransportIcon */
+/* Icon1 */
+.icon1 {
+  font-size: 50px;
+  text-align: justify;
+
+  color: blue;
+}
+.contenthead1 {
+  text-align: start;
+  margin-left: 71px;
+  margin-top: -57px;
+}
+.content1 {
+  text-align: justify;
+  margin-left: 72px;
+  margin-top: -19px;
+}
+.contenticon1 {
+  text-align: justify;
+  margin-left: 69px;
+}
+
+/* Icon2 */
+
+.icon2 {
+  font-size: 50px;
+  text-align: justify;
+
+  color: blue;
+}
+.contenthead2 {
+  text-align: start;
+  margin-left: 71px;
+  margin-top: -57px;
+}
+.content2 {
+  text-align: justify;
+  margin-left: 72px;
+  margin-top: -19px;
+}
+.contenticon2 {
+  text-align: justify;
+  margin-left: 69px;
+}
+/* Icon3 */
+.icon3 {
+  font-size: 50px;
+  text-align: justify;
+
+  color: blue;
+}
+.contenthead3 {
+  text-align: start;
+  margin-left: 71px;
+  margin-top: -57px;
+}
+.content3 {
+  text-align: left;
+  margin-left: 72px;
+  margin-top: -19px;
+}
+.contenticon3 {
+  text-align: justify;
+  margin-left: 69px;
+}
+
+/* TransportContent */
+@media (max-width: 575.98px) {
+  .icon1 {
+    font-size: 65px;
+    text-align: justify;
+
+    color: blue;
+  }
+  .contenthead1 {
+    text-align: start;
+    margin-left: 84px;
+    margin-top: -76px;
+  }
+  .content1 {
+    text-align: start;
+    margin-left: 87px;
+    margin-top: -19px;
+  }
+  .contenticon1 {
+    text-align: justify;
+    margin-left: 84px;
+  }
+  .icon2 {
+    font-size: 65px;
+    text-align: justify;
+
+    color: blue;
+  }
+  .contenthead2 {
+    text-align: start;
+    margin-left: 95px;
+    margin-top: -74px;
+  }
+  .content2 {
+    text-align: start;
+    margin-left: 96px;
+    margin-top: -19px;
+  }
+  .contenticon2 {
+    text-align: justify;
+    margin-left: 69px;
+  }
+  .icon3 {
+    font-size: 65px;
+    text-align: justify;
+
+    color: blue;
+  }
+  .contenthead3 {
+    text-align: start;
+    margin-left: 90px;
+    margin-top: -63px;
+  }
+  .content3 {
+    text-align: start;
+    margin-left: 90px;
+    margin-top: -19px;
+  }
+  .contenticon3 {
+    text-align: justify;
+    margin-left: 88px;
+  }
+}
+
+/* About Content */
+
+.aboutwrapper {
+  text-align: justify;
+  color: blue;
+}
+.aboutparawrapper {
+  text-align: justify;
+}
+.diagram {
+  text-align: justify;
+  font-size: 40px;
+  color: blue;
+}
+.diagramwrappercontentheading1 {
+  text-align: justify;
+  margin-left: 51px;
+  margin-top: -40px;
+}
+.diagramwrappercontentheadingpara1 {
+  text-align: justify;
+  margin-left: 50px;
+}
+
+.glitboximage {
+  width: 1000px;
+  height: 500px;
+}
+
+@media (max-width: 575.98px) {
+  .glitboximage {
+    width: 800px;
+    height: 300px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .glitboximage {
+    width: 1000px;
+    height: 600px;
+  }
+}
+
+/* Cart */
+
+.servicepara {
+  color: blue;
+  font-size: 50px;
+  margin-top: -59px;
+}
+.servicehead {
+  margin-top: 50px;
+}
+.servicehead::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 10%;
+  margin-left: 45%;
+
+  background-color: blue;
+}
+
+.cardImg {
+  overflow: hidden;
+}
+
+.cardImg:hover {
+  transition: ease-in 0.2s;
+  left: 0;
+  right: 0;
+  top: 32px;
+  bottom: 0;
+  transform: scale(1.1);
+}
+
+@media (max-width: 575.98px) {
+  .card {
+    width: 308px;
+  }
+  .card1 {
+    margin-left: 31px;
+  }
+  .card2 {
+    margin-left: 31px;
+  }
+  .card3 {
+    margin-left: 31px;
+  }
+  .card4 {
+    margin-left: 31px;
+  }
+  .card5 {
+    margin-left: 31px;
+  }
+  .card6 {
+    margin-left: 31px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .packageCart {
+    margin-top: -436px;
+  }
+
+  .wareHouseCard {
+    position: absolute;
+    width: 300px;
+    right: 55px;
+    top: 3750px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .card {
+    width: 300px;
+  }
+  .glitboximage {
+    width: 1000px;
+    height: 600px;
+  }
+}
+
+/* Call To Action */
+.bgImageCenter {
+  margin-top: 20px;
+  background: linear-gradient(rgba(14, 29, 52, 0.6), rgba(14, 29, 52, 0.8)) 0%
+      0% / cover,
+    url("../../../public/assets/img_sm_20.jpg") center center;
+  padding: 100px 0px;
+}
+
+.bgImageCenterhaed {
+  color: rgb(255, 255, 255);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.buttonCall {
+  font-family: var(--font-primary);
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 1px;
+  display: inline-block;
+  padding: 12px 40px;
+  border-radius: 5px;
+
+  margin: 10px;
+  border: 2px solid rgb(255, 255, 255);
+  background: var(--color-primary);
+
+  color: rgb(255, 255, 255);
+}
+.buttonCall:hover {
+  background: blue;
+}
+
+/* feature 1 */
+.feature {
+  margin-top: 80px;
+}
+.imgfeature {
+  margin-top: 5%;
+  height: 100px;
+}
+.imgfeaturehead {
+  text-align: justify;
+
+  font-weight: 600;
+  font-size: 26px;
+  color: rgb(0, 25, 115);
+  margin-left: -60px;
+  margin-top: 20px;
+}
+.imgfeaturepara {
+  text-align: justify;
+  margin-left: -60px;
+}
+
+.check {
+  color: blue;
+  font-weight: 30px;
+  font-size: 25px;
+}
+@media (max-width: 575.98px) {
+  .imgfeature {
+    width: 100% !important;
+  }
+  .imgfeaturehead {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 18px;
+    color: rgb(0, 25, 115);
+    margin-left: -7px;
+    margin-top: 21px;
+  }
+  .imgfeaturepara {
+    text-align: justify;
+    margin-left: -7px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .imgfeature {
+    width: 100% !important;
+  }
+  .imgfeaturehead {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: 1px;
+    margin-top: 21px;
+  }
+  .imgfeaturepara {
+    text-align: justify;
+    margin-left: -5px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .imgfeature {
+    width: 100% !important;
+  }
+  .imgfeaturehead {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: 1px;
+    margin-top: 21px;
+  }
+  .imgfeaturepara {
+    text-align: justify;
+    margin-left: -5px;
+  }
+}
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  .imgfeature {
+    width: 100% !important;
+    margin-top: 50px;
+  }
+  .imgfeaturehead {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: 10px;
+    margin-top: 21px;
+  }
+  .imgfeaturepara {
+    text-align: justify;
+    margin-left: -7px;
+  }
+}
+
+/* feature 2 */
+.feature2 {
+  margin-top: 80px;
+}
+.feature2Content {
+  margin-top: 80px;
+}
+.imgfeaturehead2 {
+  text-align: justify;
+
+  font-weight: 600;
+  font-size: 26px;
+  color: rgb(0, 25, 115);
+  margin-left: 60px;
+  margin-top: -11%;
+}
+.imgfeaturepara2 {
+  text-align: justify;
+  margin-left: 60px;
+}
+.imgfeature2 {
+  width: 100% !important;
+}
+@media (max-width: 575.98px) {
+  .feature2 {
+    margin-top: 80px;
+  }
+  .feature2Content {
+    margin-top: 500px;
+  }
+  .imgfeaturehead2 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -196px;
+    margin-top: -230px;
+  }
+  .imgfeaturepara2 {
+    text-align: justify;
+    margin-left: -199px;
+  }
+  .imgfeature2 {
+    width: 212% !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .feature2 {
+    margin-top: 80px;
+  }
+  .feature2Content {
+    margin-top: 750px;
+  }
+  .imgfeaturehead2 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -364px;
+    margin-top: -230px;
+  }
+  .imgfeaturepara2 {
+    text-align: justify;
+    margin-left: -360px;
+  }
+  .imgfeature2 {
+    width: 212% !important;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .imgfeature2 {
+    width: 100% !important;
+    margin-top: 100px;
+  }
+}
+@media (max-width: 575.98px) {
+  .feature2 {
+    margin-top: 80px;
+  }
+  .feature2Content {
+    margin-top: 500px;
+  }
+  .imgfeaturehead2 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -196px;
+    margin-top: -230px;
+  }
+  .imgfeaturepara2 {
+    text-align: justify;
+    margin-left: -199px;
+  }
+  .imgfeature2 {
+    width: 212% !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .feature2 {
+    margin-top: 80px;
+  }
+  .feature2Content {
+    margin-top: 750px;
+  }
+  .imgfeaturehead2 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -364px;
+    margin-top: -230px;
+  }
+  .imgfeaturepara2 {
+    text-align: justify;
+    margin-left: -360px;
+  }
+  .imgfeature2 {
+    width: 212% !important;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .imgfeature2 {
+    width: 100% !important;
+    margin-top: 100px;
+  }
+}
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+}
+
+/* feature 3 */
+.imgfeature3 {
+  margin-top: 6%;
+}
+.feature3 {
+  margin-top: 80px;
+}
+.imgfeaturehead3 {
+  text-align: justify;
+
+  font-weight: 600;
+  font-size: 26px;
+  color: rgb(0, 25, 115);
+  margin-left: -60px;
+  margin-top: 20px;
+}
+.imgfeaturepara3 {
+  text-align: justify;
+  margin-left: -60px;
+}
+
+.check {
+  color: blue;
+  font-weight: 30px;
+  font-size: 25px;
+}
+
+@media (max-width: 575.98px) {
+  .imgfeature3 {
+    width: 212% !important;
+  }
+  .feature3 {
+    margin-top: 80px;
+  }
+  .imgfeaturehead3 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: -191px;
+    margin-top: 267px;
+  }
+  .imgfeaturepara3 {
+    text-align: justify;
+    margin-left: -194px;
+  }
+
+  .check {
+    color: blue;
+    font-weight: 30px;
+    font-size: 25px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .imgfeature3 {
+    width: 212% !important;
+  }
+  .feature3 {
+    margin-top: 80px;
+  }
+  .imgfeaturehead3 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -365px;
+    margin-top: 517px;
+  }
+  .imgfeaturepara3 {
+    text-align: justify;
+    margin-left: -364px;
+  }
+
+  .check {
+    color: blue;
+    font-weight: 30px;
+    font-size: 25px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .imgfeature3 {
+    width: 80% !important;
+    margin-top: 28px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .imgfeature3 {
+    width: 212% !important;
+  }
+  .feature3 {
+    margin-top: 80px;
+  }
+  .imgfeaturehead3 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: -191px;
+    margin-top: 267px;
+  }
+  .imgfeaturepara3 {
+    text-align: justify;
+    margin-left: -194px;
+  }
+
+  .check {
+    color: blue;
+    font-weight: 30px;
+    font-size: 25px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .imgfeature3 {
+    width: 212% !important;
+  }
+  .feature3 {
+    margin-top: 80px;
+  }
+  .imgfeaturehead3 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -365px;
+    margin-top: 517px;
+  }
+  .imgfeaturepara3 {
+    text-align: justify;
+    margin-left: -364px;
+  }
+
+  .check {
+    color: blue;
+    font-weight: 30px;
+    font-size: 25px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .imgfeature3 {
+    width: 80% !important;
+    margin-top: 28px;
+  }
+}
+
+/* feature 4 */
+
+.imgfeature4 {
+  margin-top: 10%;
+}
+.feature4 {
+  margin-top: 80px;
+}
+.imgfeaturehead4 {
+  text-align: justify;
+
+  font-weight: 600;
+  font-size: 26px;
+  color: rgb(0, 25, 115);
+  margin-left: 10%;
+  margin-top: 20px;
+}
+.imgfeaturepara4 {
+  text-align: justify;
+  margin-left: 10%;
+}
+
+/* Media Query feature 4 */
+@media (max-width: 575.98px) {
+  .imgfeature4 {
+    width: 212% !important;
+  }
+  .feature4 {
+    margin-top: 80px;
+  }
+  .imgfeaturehead4 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: -193px;
+    margin-top: 267px;
+  }
+  .imgfeaturepara4 {
+    text-align: justify;
+    margin-left: -195px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .imgfeature4 {
+    width: 212% !important;
+  }
+  .feature4 {
+    margin-top: 80px;
+  }
+  .imgfeaturehead4 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: -366px;
+    margin-top: 517px;
+  }
+  .imgfeaturepara4 {
+    text-align: justify;
+    margin-left: -363px;
+  }
+}
+
+/* feature 5*/
+.feature5 {
+  margin-top: 80px;
+}
+.imgfeature5 {
+  margin-top: 5%;
+  height: 100px;
+}
+.imgfeaturehead5 {
+  text-align: justify;
+
+  font-weight: 600;
+  font-size: 26px;
+  color: rgb(0, 25, 115);
+  margin-left: -60px;
+  margin-top: 20px;
+}
+.imgfeaturepara5 {
+  text-align: justify;
+  margin-left: -60px;
+}
+
+.check {
+  color: blue;
+  font-weight: 30px;
+  font-size: 25px;
+}
+@media (max-width: 575.98px) {
+  .imgfeature5 {
+    width: 100% !important;
+  }
+  .imgfeaturehead5 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 18px;
+    color: rgb(0, 25, 115);
+    margin-left: -7px;
+    margin-top: 21px;
+  }
+  .imgfeaturepara5 {
+    text-align: justify;
+    margin-left: -7px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .imgfeature5 {
+    width: 100% !important;
+  }
+  .imgfeaturehead5 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: 1px;
+    margin-top: 21px;
+  }
+  .imgfeaturepara5 {
+    text-align: justify;
+    margin-left: -5px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .imgfeature5 {
+    width: 100% !important;
+  }
+  .imgfeaturehead5 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: 1px;
+    margin-top: 21px;
+  }
+  .imgfeaturepara5 {
+    text-align: justify;
+    margin-left: -5px;
+  }
+}
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  .imgfeature5 {
+    width: 100% !important;
+    margin-top: 50px;
+  }
+  .imgfeaturehead5 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(0, 25, 115);
+    margin-left: 10px;
+    margin-top: 21px;
+  }
+  .imgfeaturepara5 {
+    text-align: justify;
+    margin-left: -7px;
+  }
+}
+
+/* feature 6 */
+.feature6 {
+  margin-top: 80px;
+}
+.feature6Content {
+  margin-top: 80px;
+}
+.imgfeaturehead6 {
+  text-align: justify;
+
+  font-weight: 600;
+  font-size: 26px;
+  color: rgb(0, 25, 115);
+  margin-left: 60px;
+  margin-top: -11%;
+}
+.imgfeaturepara6 {
+  text-align: justify;
+  margin-left: 60px;
+}
+.imgfeature6 {
+  width: 100% !important;
+  margin-top: 5%;
+}
+@media (max-width: 575.98px) {
+  .feature6 {
+    margin-top: 80px;
+  }
+  .feature6Content {
+    margin-top: 500px;
+  }
+  .imgfeaturehead6 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -196px;
+    margin-top: -230px;
+  }
+  .imgfeaturepara6 {
+    text-align: justify;
+    margin-left: -199px;
+  }
+  .imgfeature6 {
+    width: 212% !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .feature6 {
+    margin-top: 80px;
+  }
+  .feature6Content {
+    margin-top: 750px;
+  }
+  .imgfeaturehead6 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -364px;
+    margin-top: -230px;
+  }
+  .imgfeaturepara6 {
+    text-align: justify;
+    margin-left: -360px;
+  }
+  .imgfeature6 {
+    width: 212% !important;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .imgfeature6 {
+    width: 100% !important;
+    margin-top: 100px;
+  }
+}
+@media (max-width: 575.98px) {
+  .feature6 {
+    margin-top: 80px;
+  }
+  .feature6Content {
+    margin-top: 500px;
+  }
+  .imgfeaturehead6 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -196px;
+    margin-top: -230px;
+  }
+  .imgfeaturepara6 {
+    text-align: justify;
+    margin-left: -199px;
+  }
+  .imgfeature6 {
+    width: 212% !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .feature6 {
+    margin-top: 80px;
+  }
+  .feature6Content {
+    margin-top: 750px;
+  }
+  .imgfeaturehead6 {
+    text-align: justify;
+
+    font-weight: 600;
+    font-size: 26px;
+    color: rgb(0, 25, 115);
+    margin-left: -364px;
+    margin-top: -230px;
+  }
+  .imgfeaturepara6 {
+    text-align: justify;
+    margin-left: -360px;
+  }
+  .imgfeature6 {
+    width: 212% !important;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .imgfeature6 {
+    width: 100% !important;
+    margin-top: 100px;
+  }
+}
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+}
+
+/* Pricing */
+
+.priceHead {
+  font-size: 32px;
+  font-weight: 700;
+
+  color: rgb(0, 25, 115);
+
+  position: relative;
+  margin-top: 5%;
+}
+.priceHead::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 10%;
+  margin-left: 45%;
+
+  background-color: blue;
+}
+
+.priceHead1 {
+  font-size: 32px;
+  font-weight: 700;
+
+  color: rgb(0, 25, 115);
+
+  position: relative;
+  margin-top: 50px;
+}
+.priceHead1Para1 {
+  font-size: 20px;
+  width: 100%;
+}
+
+.freePlan1 {
+  text-align: justify;
+}
+.priceHead2 {
+  font-size: 32px;
+  font-weight: 700;
+
+  color: rgb(0, 25, 115);
+
+  position: relative;
+  margin-top: 50px;
+}
+.priceHead1Para2 {
+  font-size: 20px;
+}
+
+.freePlan2 {
+  text-align: justify;
+}
+.priceHead3 {
+  font-size: 32px;
+  font-weight: 700;
+
+  color: rgb(0, 25, 115);
+
+  position: relative;
+  margin-top: 50px;
+}
+.priceHead1Para3 {
+  font-size: 20px;
+}
+
+.freePlan3 {
+  text-align: justify;
+}
+.paraButton1 {
+  margin-left: 50px;
+}
+.paraButton2 {
+  margin-left: 50px;
+}
+.paraButton3 {
+  margin-left: 50px;
+}
+
+@media (max-width: 575.98px) {
+  .priceHeadLine {
+    color: blue;
+    font-size: 30px;
+  }
+  /* 1 */
+  .priceHead1 {
+    font-size: 30px;
+    font-weight: 700;
+    text-align: justify;
+    color: rgb(0, 25, 115);
+    margin-left: -14%;
+    position: relative;
+    margin-top: 2%;
+  }
+  .dollar1 {
+    font-size: 40px;
+    margin-left: -46%;
+  }
+  .zero1 {
+    font-size: 36px;
+  }
+  .month1 {
+    font-size: 25px;
+  }
+  .priceHead1Para1 {
+    font-size: 20px;
+    margin-right: 90px;
+    margin-top: -22px;
+  }
+
+  .freePlan1 {
+    text-align: center;
+  }
+
+  .iconPara1 {
+    font-size: 36px;
+  }
+  .paraButton1 {
+    margin-left: -35%;
+    margin-bottom: 27%;
+  }
+
+  /* 2 */
+
+  .priceHead2 {
+    font-size: 30px;
+    font-weight: 700;
+    text-align: justify;
+    color: rgb(0, 25, 115);
+    margin-left: -14%;
+    position: relative;
+    margin-top: 2%;
+  }
+  .dollar2 {
+    font-size: 40px;
+    margin-left: -46%;
+  }
+  .zero2 {
+    font-size: 36px;
+  }
+  .month2 {
+    font-size: 25px;
+  }
+  .priceHead1Para2 {
+    font-size: 20px;
+    margin-right: 90px;
+    margin-top: -22px;
+  }
+
+  .freePlan2 {
+    text-align: center;
+  }
+
+  .iconPara2 {
+    font-size: 36px;
+  }
+  .paraButton2 {
+    margin-left: -35%;
+    margin-bottom: 27%;
+  }
+
+  /* 3 */
+
+  .priceHead3 {
+    font-size: 30px;
+    font-weight: 700;
+    text-align: justify;
+    color: rgb(0, 25, 115);
+    margin-left: -14%;
+    position: relative;
+    margin-top: 2%;
+  }
+  .dollar3 {
+    font-size: 40px;
+    margin-left: -46%;
+  }
+  .zero3 {
+    font-size: 36px;
+  }
+  .month3 {
+    font-size: 25px;
+  }
+  .priceHead1Para3 {
+    font-size: 20px;
+    margin-right: 90px;
+    margin-top: -22px;
+  }
+
+  .freePlan3 {
+    text-align: center;
+  }
+
+  .iconPara3 {
+    font-size: 36px;
+  }
+  .paraButton3 {
+    margin-left: -35%;
+    margin-bottom: 27%;
+  }
+}
+
+/* Testimonials */
+.testimonials {
+  border-radius: 50%;
+  width: 250px;
+  border: 6px solid rgba(255, 255, 255, 0.15);
+}
+.testimoialsBg {
+  margin-top: 30px;
+
+  content: "";
+
+  inset: 0;
+  background: rgba(14, 29, 52, 0.7);
+  width: 2110px !important;
+  height: 500px;
+  opacity: 0.9;
+}
+.stars {
+  color: yellowgreen;
+}
+.content {
+  color: white;
+}
+.frequentHead {
+  font-size: 32px;
+  font-weight: 700;
+
+  padding-bottom: 0;
+  color: #001973;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  position: relative;
+}
+.paraFre {
+  margin-top: -40px;
+}
+
+@media (max-width: 575.98px) {
+  .testimonials {
+    border-radius: 50%;
+    width: 150px;
+    border: 6px solid rgba(255, 255, 255, 0.15);
+  }
+  .testimoialsBg {
+    margin-top: 30px;
+
+    content: "";
+
+    inset: 0;
+    background: rgba(14, 29, 52, 0.7);
+    width: 380px !important;
+    height: 350px;
+    opacity: 0.9;
+  }
+  .stars {
+    color: yellowgreen;
+  }
+  .content {
+    color: black;
+  }
+  .frequentHead {
+    font-size: 32px;
+    font-weight: 700;
+
+    padding-bottom: 0;
+    color: #001973;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+  .paraFre {
+    margin-top: -40px;
+  }
+}
+@media (min-width: 575.98px) and (max-width: 768px) {
+  .testimoialsBg {
+    margin-top: 30px;
+
+    content: "";
+
+    inset: 0;
+    background: rgba(14, 29, 52, 0.7);
+    width: 720px !important;
+    height: 250px;
+    opacity: 0.9;
+  }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .testimonials {
+    border-radius: 50%;
+    width: 220px;
+    border: 6px solid rgba(255, 255, 255, 0.15);
+  }
+  .testimoialsBg {
+    margin-top: 30px;
+
+    content: "";
+
+    inset: 0;
+    background: rgba(14, 29, 52, 0.7);
+    width: 720px !important;
+    height: 250px;
+    opacity: 0.9;
+  }
+  .stars {
+    color: yellowgreen;
+  }
+  .content {
+    color: black;
+  }
+  .frequentHead {
+    font-size: 32px;
+    font-weight: 700;
+
+    padding-bottom: 0;
+    color: #001973;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+  .paraFre {
+    margin-top: -40px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .testimonials {
+    border-radius: 50%;
+    width: 250px;
+    border: 6px solid rgba(255, 255, 255, 0.15);
+  }
+  .testimoialsBg {
+    margin-top: 30px;
+
+    content: "";
+
+    inset: 0;
+    background: rgba(14, 29, 52, 0.7);
+    width: 1000px !important;
+    height: 250px;
+    opacity: 0.9;
+  }
+  .stars {
+    color: yellowgreen;
+  }
+  .content {
+    color: black;
+  }
+  .frequentHead {
+    font-size: 32px;
+    font-weight: 700;
+
+    padding-bottom: 0;
+    color: #001973;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+  .paraFre {
+    margin-top: -40px;
+  }
+}
+@media (min-width: 1400px) {
+  .testimoialsBg {
+    margin-top: 30px;
+
+    content: "";
+
+    inset: 0;
+    background: rgba(14, 29, 52, 0.7);
+    width: 1500px;
+    height: 500px;
+    opacity: 0.9;
+  }
+}
+
+.frequentHead::after {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 10%;
+  margin-left: 45%;
+  margin-top: 2%;
+
+  background-color: blue;
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .frequentHead {
+    margin-top: 210px !important;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .frequentHead {
+    margin-top: 210px !important;
+  }
+}
+
+//App.js
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// components
+import Header from "./Components/Header/Header";
+import Home from "./Components/Home/Home";
+import Courses from "./Components/Courses/Courses";
+import Signin from "./Components/Signin/Signin";
+import Register from "./Components/Register/Register";
+import Footer from "./Components/Footer/Footer";
+
+function App() {
+  return (
+    <div className="App">
+      <Header />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/Home" element={<Home />} />
+          <Route path="/Courses" element={<Courses />} />
+          <Route path="/Signin" element={<Signin />} />
+          <Route path="/Register" element={<Register />} />
+          {/* <Route path="/Contact" element={<Contact />} />
+          <Route path="/Get" element={<Get />} />    */}
+        </Routes>
+      </BrowserRouter>
+      <Footer />
+    </div>
+  );
+}
+
+export default App;
