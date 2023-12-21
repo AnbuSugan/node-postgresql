@@ -1,0 +1,350 @@
+ npm init
+npm install express cors mysql2
+ node index.js
+npm install nodemon
+npm start
+npm install sequelize sequelize-cli
+sequelize init
+npm install cors
+
+
+step 1:
+npm init
+
+step2:
+npm install express cors mysql2
+
+//index.js created
+
+const express = require("express");
+const app = express();
+
+ app.listen(3001, () => {
+    console.log("Server running on port 3001");
+  });
+
+step3:
+npm install sequelize sequelize-cli
+sequelize init
+npm install cors
+npm install nodemon
+models created
+
+step4:
+//Pacakage.json
+"start": "nodemon index.js"
+
+step5:
+//For Database Connection
+//config.json
+{
+  "development": {
+    "username": "root",
+    "password": "Anbu1995@",
+    "database": "TutorialDB",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+
+//Step 6
+//Posts.js  create Posts.js under models 
+For Table Heading and Table Created
+
+module.exports = (sequelize, DataTypes) => {
+  const Posts = sequelize.define("Posts", {
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    postText: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  });
+  return Posts;
+};
+
+//Step 7
+//index.js export db and sequalize modules
+const express = require("express");
+const app = express();
+
+const db = require("./models");
+
+db.sequelize.sync().then(() => {
+  app.listen(3001, () => {
+    console.log("Server running on port 3001");
+  });
+});
+
+//Step 8
+
+create Router Folder
+//router
+Posts.js
+const express = require("express");
+const router = express.Router();
+const { Posts } = require("../models");
+
+router.get("/", async (req, res) => {
+  const listOfPosts = await Posts.findAll();
+  res.json(listOfPosts);
+});
+
+router.post("/", async (req, res) => {
+  const post = req.body;
+  await Posts.create(post);
+  res.json(post);
+});
+module.exports = router;
+
+
+//Step 9
+//index.js
+const express = require("express");
+const app = express();
+const cors = require("cors");
+
+app.use(express.json());
+app.use(cors());
+
+//Routers
+const postRouter = require("./routes/Posts");
+app.use("/posts", postRouter);
+
+const db = require("./models");
+
+db.sequelize.sync().then(() => {
+  app.listen(3001, () => {
+    console.log("Server running on port 3001");
+  });
+});
+
+
+//FrontEnd
+
+//value get in backend to frontend
+
+npx create-react-app client
+npm start
+npm install axios
+npm install react-router-dom
+npm install formik
+npm install yup
+//create a post in frontend and store to backend and print 
+//Home page and Create a Post Page
+//App.js
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import Home from "./Pages/Home";
+import CreatePost from "./Pages/CreatePost";
+import "./App.css";
+
+const App = () => {
+  return (
+    <Router>
+      <Link to="/createpost " className="create">
+        Create A Post
+      </Link>
+      <br />
+      <Link to="/" className="creates">
+        Home
+      </Link>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/createpost" element={<CreatePost />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
+
+//App.css
+
+.create {
+  margin: 42%;
+}
+.creates {
+  margin: 43%;
+}
+
+//Pages
+//Home.js
+import React from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import "./Home.css";
+
+const Home = () => {
+  const [listOfPosts, setListOfPosts] = useState([]);
+  useEffect(() => {
+    axios.get("http://localhost:3001/Posts").then((response) => {
+      setListOfPosts(response.data);
+    });
+  }, []);
+  return (
+    <div>
+      <div className="total">
+        {listOfPosts.map((value, key) => {
+          return (
+            <div className="post">
+              <div className="title">{value.title}</div>
+              <div className="body">{value.postText}</div>
+              <div className="footer">{value.username}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export default Home;
+
+//Home.css
+.post {
+  text-align: center;
+  box-sizing: border-box;
+  width: 30%;
+  margin-left: 30%;
+  margin-top: 5%;
+  border: 1px solid wheat;
+}
+.title {
+  background-color: rgb(113, 113, 212);
+  color: blanchedalmond;
+  padding: 5%;
+}
+.body {
+  padding: 5%;
+}
+.footer {
+  margin-bottom: 1%;
+  background-color: rgb(113, 113, 212);
+  color: blanchedalmond;
+  padding: 5%;
+  border-radius: 3%;
+}
+
+//CreatePost.js
+import React from "react";
+import "./CreatePost.css";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import axios from "axios";
+
+function CreatePost() {
+  const initialValues = {
+    title: "",
+    postText: "",
+    username: "",
+  };
+
+  const validationSchema = Yup.object().shape({
+    title: Yup.string().required("You must Input a Title"),
+    postText: Yup.string().required("Post is required"),
+    username: Yup.string().min(3).max(15).required("Pasword is required"),
+  });
+
+  const onSubmit = (data) => {
+    axios.post("http://localhost:3001/Posts", data).then((response) => {
+      console.log("It Workes");
+    });
+  };
+
+  return (
+    <div className="createPostPage">
+      <Formik
+        initialValues={initialValues}
+        onSubmit={onSubmit}
+        validationSchema={validationSchema}
+      >
+        <Form>
+          <label className="titleLabel">Title:</label>
+          <br />
+          <ErrorMessage name="title" component="span" />
+          <br />
+          <Field
+            autoComplete="off"
+            id="inputCreatePost"
+            className="titleInput"
+            name="title"
+            placeholder="(Ex.Title..)"
+          />
+          <br />
+          <label className="postLabel">Post:</label>
+          <br />
+          <ErrorMessage name="postText" component="span" />
+          <br />
+          <Field
+            autoComplete="off"
+            id="inputCreatePost"
+            name="postText"
+            placeholder="(Post..)"
+            className="postInput"
+          />
+          <br />
+          <label className="userLabel">Username:</label>
+          <br />
+          <ErrorMessage name="username" component="span" />
+          <br />
+          <Field
+            autoComplete="off"
+            id="inputCreatePost"
+            name="username"
+            placeholder="(John123..)"
+            className="userInput"
+          />
+          <br />
+          <button type="submit" className="createButton">
+            Create Post
+          </button>
+        </Form>
+      </Formik>
+    </div>
+  );
+}
+
+export default CreatePost;
+//CreatePost.css
+.createPostPage {
+  text-align: center;
+  margin-top: 5%;
+  margin-left: 15%;
+
+  box-sizing: border-box;
+  width: 60%;
+}
+.titleLabel {
+  margin-right: 30%;
+}
+.postLabel {
+  margin-right: 30%;
+}
+.userLabel {
+  margin-right: 27%;
+}
+.createButton {
+  margin-top: 1%;
+  padding: 1%;
+}
+.titleInput {
+  padding: 1%;
+  width: 30%;
+}
+.postInput {
+  padding: 1%;
+  width: 30%;
+}
+.userInput {
+  padding: 1%;
+  width: 30%;
+}
+span {
+  color: red;
+  margin-right: 21%;
+}
