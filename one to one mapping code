@@ -1,0 +1,385 @@
+//Server
+
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const { Sequelize, DataTypes } = require("sequelize");
+
+const app = express();
+const port = 3001;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+const sequelize = new Sequelize("Map", "postgres", "anbu@2023", {
+  host: "localhost",
+  dialect: "postgres",
+});
+
+const User = sequelize.define("User", {
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  age: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+});
+
+const UserProfile = sequelize.define("UserProfile", {
+  city: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  state: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  landmark: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  pincode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+});
+
+User.hasOne(UserProfile);
+UserProfile.belongsTo(User);
+
+app.post("/api/register-step1", async (req, res) => {
+  try {
+    const { username, password, email, age } = req.body;
+    const user = await User.create({ username, password, email, age });
+    res.status(200).json({ userId: user.id });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/api/register-step2", async (req, res) => {
+  try {
+    const { userId, city, state, landmark, pincode } = req.body;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userProfile = await UserProfile.create({
+      city,
+      state,
+      landmark,
+      pincode,
+    });
+    await user.setUserProfile(userProfile);
+
+    res.status(200).json({ message: "Registration completed successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/api/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Add your authentication logic here
+
+    const userId = 1;
+
+    res.status(200).json({ userId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+sequelize.sync({ force: true }).then(() => {
+  app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+  });
+});
+
+//FrontEnd
+//Register1
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import "./RegistrationForm.css";
+const RegisterForm = ({ onSubmit }) => {
+  return (
+    <div className="form">
+      <Formik
+        initialValues={{ username: "", password: "", email: "", age: "" }}
+        validationSchema={Yup.object({
+          username: Yup.string().required("Required"),
+          password: Yup.string().required("Required"),
+
+          email: Yup.string()
+            .email("Invalid email address")
+            .required("Required"),
+          age: Yup.string().required("Required"),
+        })}
+        onSubmit={onSubmit}
+      >
+        <Form>
+          <div>
+            <div>
+              <label htmlFor="username" className="userNamelabel">
+                Username:
+              </label>
+            </div>
+            <Field
+              type="text"
+              id="username"
+              name="username"
+              className="username"
+            />
+            <ErrorMessage name="username" component="div" />
+          </div>
+          <div>
+            <div>
+              <label htmlFor="password" className="passwordlabel">
+                password:
+              </label>
+            </div>
+            <Field
+              type="text"
+              id="password"
+              name="password"
+              className="password"
+            />
+            <ErrorMessage name="password" component="div" />
+          </div>
+
+          <div>
+            <div>
+              <label htmlFor="email" className="emailLabel">
+                Email:
+              </label>
+            </div>
+            <Field type="email" id="email" name="email" />
+            <ErrorMessage name="email" component="div" />
+          </div>
+          <div>
+            <div>
+              <label htmlFor="age" className="ageLabel">
+                age:
+              </label>
+            </div>
+            <Field type="text" id="age" name="age" />
+            <ErrorMessage name="age" component="div" />
+          </div>
+
+          <div>
+            <button type="submit">Next</button>
+          </div>
+        </Form>
+      </Formik>
+    </div>
+  );
+};
+
+export default RegisterForm;
+//Register2
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import "./Registrationstep2.css";
+
+const RegisterStep2Form = ({ onSubmit }) => {
+  return (
+    <div className="form2">
+      <Formik
+        initialValues={{ fullName: "", city: "" }}
+        validationSchema={Yup.object({
+          city: Yup.string().required("Required"),
+          state: Yup.string().required("Required"),
+          landmark: Yup.string().required("Required"),
+          pincode: Yup.string().required("Required"),
+        })}
+        onSubmit={onSubmit}
+      >
+        <Form>
+          <div>
+            <div>
+              <label htmlFor="city" className="cityLabel">
+                city:
+              </label>
+            </div>
+            <Field type="text" id="city" name="city" />
+            <ErrorMessage name="city" component="div" />
+          </div>
+          <div>
+            <div>
+              <label htmlFor="state" className="stateLabel">
+                state:
+              </label>
+            </div>
+            <Field type="text" id="state" name="state" />
+            <ErrorMessage name="state" component="div" />
+          </div>
+
+          <div>
+            <div>
+              <label htmlFor="landmark" className="landmarkLabel">
+                landmark:
+              </label>
+            </div>
+            <Field type="text" id="landmark" name="landmark" />
+            <ErrorMessage name="landmark" component="div" />
+          </div>
+          <div>
+            <div>
+              <label htmlFor="pincode" className="pincodeLabel">
+                pincode:
+              </label>
+            </div>
+            <Field type="text" id="pincode" name="pincode" />
+            <ErrorMessage name="pincode" component="div" />
+          </div>
+
+          <div>
+            <button type="submit">Register</button>
+          </div>
+        </Form>
+      </Formik>
+    </div>
+  );
+};
+
+export default RegisterStep2Form;
+//Login
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import "./Login.css";
+const Login = ({ onSubmit }) => {
+  return (
+    <div className="form">
+      <Formik
+        initialValues={{ username: "", password: "" }}
+        validationSchema={Yup.object({
+          username: Yup.string().required("Required"),
+          password: Yup.string().required("Required"),
+        })}
+        onSubmit={onSubmit}
+      >
+        <Form>
+          <div>
+            <div>
+              <label htmlFor="username" className="userNamelabel">
+                Username:
+              </label>
+            </div>
+            <Field
+              type="text"
+              id="username"
+              name="username"
+              className="username"
+            />
+            <ErrorMessage name="username" component="div" />
+          </div>
+          <div>
+            <div>
+              <label htmlFor="password" className="passwordlabel">
+                password:
+              </label>
+            </div>
+            <Field
+              type="text"
+              id="password"
+              name="password"
+              className="password"
+            />
+            <ErrorMessage name="password" component="div" />
+          </div>
+          <div>
+            <button type="submit">Next</button>
+          </div>
+        </Form>
+      </Formik>
+    </div>
+  );
+};
+
+export default Login;
+//App.js
+import React, { useState } from "react";
+import RegisterForm from "./RegisterForm";
+import RegisterStep2Form from "./RegisterStep2Form";
+import axios from "axios";
+import Login from "./Login";
+
+const App = () => {
+  const [userId, setUserId] = useState(null);
+
+  const handleRegisterStep1 = async (values, { setSubmitting }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/register-step1",
+        values
+      );
+      setUserId(response.data.userId);
+    } catch (error) {
+      console.error(error);
+    }
+    setSubmitting(false);
+  };
+
+  const handleRegisterStep2 = async (values, { setSubmitting }) => {
+    try {
+      await axios.post("http://localhost:3001/api/register-step2", {
+        userId,
+        city: values.city,
+        state: values.state,
+        landmark: values.landmark,
+        pincode: values.pincode,
+      });
+      console.log("Registration completed successfully");
+    } catch (error) {
+      console.error(error);
+    }
+    setSubmitting(false);
+  };
+
+  const handleLogin = async (values, { setSubmitting }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/api/login",
+        values
+      );
+      setUserId(response.data.userId);
+      alert("Login Succesful");
+    } catch (error) {
+      console.error(error);
+    }
+    setSubmitting(false);
+  };
+
+  return (
+    <div>
+      {userId ? (
+        <RegisterStep2Form onSubmit={handleRegisterStep2} />
+      ) : (
+        <RegisterForm onSubmit={handleRegisterStep1} />
+      )}
+      <Login onSubmit={handleLogin} />
+    </div>
+  );
+};
+
+export default App;
