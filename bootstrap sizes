@@ -1,0 +1,7 @@
+col-1: 1/12th of the container width.
+col-2: 2/12th of the container width (or 1/6th).
+col-3: 3/12th of the container width (or 1/4th).
+col-4: 4/12th of the container width (or 1/3rd).
+col-6: 6/12th of the container width (or 1/2).
+col-9: 9/12th of the container width (or 3/4th).
+col-12: 12/12th of the container width (or the entire width).
